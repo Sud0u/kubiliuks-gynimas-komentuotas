@@ -36,8 +36,16 @@
 
                 <div id="registerClientError" class="mt-4 hidden rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
 
-                <form method="POST" action="{{ route('register') }}" class="space-y-4" id="registerForm" novalidate>
+                {{-- GYNIMO PAAISKINIMAS PRADZIA: registracijos forma --}}
+{{-- Cia yra vartotojo registracijos forma. --}}
+{{-- Vartotojas iveda varda, email, slaptazodi ir turi pazymeti taisykliu checkbox. --}}
+{{-- GYNIMO PAAISKINIMAS PABAIGA: registracijos forma --}}
+<form method="POST" action="{{ route('register') }}" class="space-y-4" id="registerForm" novalidate>
                     @csrf
+                    {{-- GYNIMO PAAISKINIMAS PRADZIA: recaptcha registracijos puslapyje --}}
+                    {{-- Cia registracijos puslapis susijes su reCAPTCHA tokenu. --}}
+                    {{-- Tokenas perduodamas i RegisteredUserController, kur serveris ji patikrina. --}}
+                    {{-- GYNIMO PAAISKINIMAS PABAIGA: recaptcha registracijos puslapyje --}}
                     <input type="hidden" name="recaptcha_token" id="recaptchaTokenRegister">
 
                     <div>
@@ -179,6 +187,10 @@
                     {{-- Patvirtinimas reikalingas tam, kad vartotojas prieš registraciją sutiktų su taisyklėmis. --}}
                     <div>
                         <label for="terms" class="flex items-start gap-3 rounded-2xl border border-black/10 bg-stone-50 px-4 py-3 text-sm text-stone-700">
+                            {{-- GYNIMO PAAISKINIMAS PRADZIA: taisykliu checkbox frontend puseje --}}
+                            {{-- Cia yra checkbox, kuri vartotojas privalo pazymeti pries registracija. --}}
+                            {{-- Jei nepazymi, frontend rodo klaida, o backend vis tiek papildomai tikrina terms accepted. --}}
+                            {{-- GYNIMO PAAISKINIMAS PABAIGA: taisykliu checkbox frontend puseje --}}
                             <input
                                 id="terms"
                                 name="terms"

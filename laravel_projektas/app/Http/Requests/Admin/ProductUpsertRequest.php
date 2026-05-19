@@ -6,11 +6,19 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ProductUpsertRequest extends FormRequest
 {
+    // GYNIMO PAAISKINIMAS PRADZIA: leidimas admin formai
+    // Cia grazinama true, nes leidimai siame projekte valdomi per route/middleware.
+    // Tai reiskia, kad i sita forma jau turi patekti tik admin.
+    // GYNIMO PAAISKINIMAS PABAIGA: leidimas admin formai
     public function authorize(): bool
     {
         return auth()->check() && (bool) auth()->user()->is_admin;
     }
 
+    // GYNIMO PAAISKINIMAS PRADZIA: duomenu paruosimas pries validacija
+    // Cia kai kurie formos checkbox arba skaiciai sutvarkomi pries rules tikrinima.
+    // Taip validacija gauna tvarkingesnes reiksmes.
+    // GYNIMO PAAISKINIMAS PABAIGA: duomenu paruosimas pries validacija
     protected function prepareForValidation(): void
     {
         $this->merge([
@@ -34,6 +42,10 @@ class ProductUpsertRequest extends FormRequest
         ]);
     }
 
+    // GYNIMO PAAISKINIMAS PRADZIA: admin prekes validacijos taisykles
+    // Cia aprasyta ka admin privalo uzpildyti kuriant arba redaguojant preke.
+    // Pvz pavadinimas privalomas, kaina turi buti skaicius, nuotraukos turi buti paveiksleliai.
+    // GYNIMO PAAISKINIMAS PABAIGA: admin prekes validacijos taisykles
     public function rules(): array
     {
         return [
@@ -56,6 +68,10 @@ class ProductUpsertRequest extends FormRequest
         ];
     }
 
+    // GYNIMO PAAISKINIMAS PRADZIA: lietuviski validacijos pranesimai
+    // Cia surasyti pranesimai, kuriuos admin mato jei forma uzpildyta blogai.
+    // Taip vartotojas nemato Laravel anglisku klaidu.
+    // GYNIMO PAAISKINIMAS PABAIGA: lietuviski validacijos pranesimai
     public function messages(): array
     {
         return [

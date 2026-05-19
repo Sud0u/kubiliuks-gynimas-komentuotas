@@ -17,8 +17,16 @@ class ProductController extends Controller
      * GET /api/v1/products
      * Public katalogas (tik aktyvios prekės).
      */
+    // GYNIMO PAAISKINIMAS PRADZIA: prekiu API sarasas
+    // Sitas metodas grazina prekes katalogui.
+    // Jis paima filtrus is query parametru ir perduoda juos ProductCatalogService.
+    // GYNIMO PAAISKINIMAS PABAIGA: prekiu API sarasas
     public function index(Request $request)
     {
+        // GYNIMO PAAISKINIMAS PRADZIA: prekiu filtru paemimas
+        // Cia is URL paimama paieska, kategorija, kainos ribos ir rikiavimas.
+        // Pvz vartotojas pasirenka kategorija arba paieskos teksta.
+        // GYNIMO PAAISKINIMAS PABAIGA: prekiu filtru paemimas
         $filters = [
             'q' => $request->query('q'),
             'category_id' => $request->query('category_id'),
@@ -27,12 +35,24 @@ class ProductController extends Controller
             'sort' => $request->query('sort', 'newest'),
         ];
 
+        // GYNIMO PAAISKINIMAS PRADZIA: puslapiavimo kiekis
+        // Cia nustatoma kiek prekiu rodyti viename puslapyje.
+        // max/min apsaugo, kad vartotojas negaletu paprasyti per daug prekiu vienu kartu.
+        // GYNIMO PAAISKINIMAS PABAIGA: puslapiavimo kiekis
         $perPage = (int) $request->query('per_page', 12);
         $perPage = max(1, min(48, $perPage));
 
+        // GYNIMO PAAISKINIMAS PRADZIA: prekiu gavimas per service
+        // Cia filtrai perduodami i ProductCatalogService.
+        // Service/repository puse tada parenka prekes is DB pagal vartotojo filtrus.
+        // GYNIMO PAAISKINIMAS PABAIGA: prekiu gavimas per service
         $paginator = $this->catalog->paginateForApi($filters, $perPage);
 
         // Minimalus API formatas frontui (Blade + JS)
+        // GYNIMO PAAISKINIMAS PRADZIA: prekiu formato paruosimas frontendui
+        // Cia kiekviena preke paverciama i paprasta masyva.
+        // Frontendui graziname tik tai ko reikia: pavadinima, kaina, nuotraukas, kategorija ir likuti.
+        // GYNIMO PAAISKINIMAS PABAIGA: prekiu formato paruosimas frontendui
         $data = $paginator->getCollection()->map(function (Product $p) {
             return [
                 'id' => $p->id,
@@ -66,6 +86,10 @@ class ProductController extends Controller
     /**
      * GET /api/v1/products/{slug}
      */
+    // GYNIMO PAAISKINIMAS PRADZIA: vienos prekes API
+    // Cia pagal slug surandama viena aktyvi preke.
+    // Slug yra grazus URL pavadinimas, pvz medinis-kubilas.
+    // GYNIMO PAAISKINIMAS PABAIGA: vienos prekes API
     public function show(string $slug)
     {
         $product = Product::with('category')
@@ -93,6 +117,10 @@ class ProductController extends Controller
     }
 
 
+    // GYNIMO PAAISKINIMAS PRADZIA: prekes nuotrauku galerija
+    // Cia sujungiama pagrindine nuotrauka, image_2, image_3 ir gallery_images.
+    // Taip prekes puslapyje galima rodyti kelias nuotraukas.
+    // GYNIMO PAAISKINIMAS PABAIGA: prekes nuotrauku galerija
     private function productImageUrls(Product $product): array
     {
         $galleryImages = $product->gallery_images ?? [];
@@ -112,6 +140,10 @@ class ProductController extends Controller
             ->all();
     }
 
+    // GYNIMO PAAISKINIMAS PRADZIA: prekes nuotraukos URL
+    // Cia is nuotraukos kelio padaromas normalus URL.
+    // Jei kelias tuscias, grazinama null, kad frontend negautu blogo paveikslelio.
+    // GYNIMO PAAISKINIMAS PABAIGA: prekes nuotraukos URL
     private function publicImageUrl(?string $path): ?string
     {
         if (!$path) return null;

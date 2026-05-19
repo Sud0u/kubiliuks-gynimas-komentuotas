@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Route;
 // KODO PRADŽIA: web.php maršrutai
 // Šitas failas skirtas puslapiams, kuriuos žmogus atsidaro naršyklėje.
 // Čia grąžinami Blade puslapiai: pradžia, prekės, checkout, admin ir kt.
+// GYNIMO PAAISKINIMAS PRADZIA: web routes
+// Sitas failas skirtas puslapiams, kuriuos vartotojas atsidaro narsykleje.
+// Pvz pagrindinis puslapis, checkout, susikurk kubila, admin puslapiai ir Paysera grizimai.
+// GYNIMO PAAISKINIMAS PABAIGA: web routes
 Route::get('/', [PageController::class, 'home'])->name('home');
 
 Route::get('/dashboard', [PageController::class, 'dashboard'])

@@ -9,11 +9,19 @@ use WebToPay;
 
 class PayseraService
 {
+    // GYNIMO PAAISKINIMAS PRADZIA: ar Paysera ijungta
+    // Cia tikrinama konfiguracija ar Paysera funkcija ijungta.
+    // Local arba testavimo metu galima isjungti, o live serveryje ijungti per .env.
+    // GYNIMO PAAISKINIMAS PABAIGA: ar Paysera ijungta
     public function isEnabled(): bool
     {
         return (bool) config('services.paysera.enabled', false);
     }
 
+    // GYNIMO PAAISKINIMAS PRADZIA: ar Paysera sukonfiguruota
+    // Cia patikrinama ar yra projekto id ir slaptazodis.
+    // Be situ duomenu Paysera mokejimo nuoroda negali buti saugiai sukurta.
+    // GYNIMO PAAISKINIMAS PABAIGA: ar Paysera sukonfiguruota
     public function isConfigured(): bool
     {
         return $this->isEnabled()
@@ -33,12 +41,20 @@ class PayseraService
 
     // KODO PRADŽIA: Paysera redirect URL sukūrimas
     // Čia iš užsakymo duomenų suformuojama nuoroda į Paysera mokėjimo langą.
+    // GYNIMO PAAISKINIMAS PRADZIA: Paysera mokejimo nuorodos kurimas
+    // Cia is uzsakymo duomenu paruosiama Paysera mokejimo nuoroda.
+    // I ja vartotojas nukreipiamas kai pasirenka apmoketi per Paysera.
+    // GYNIMO PAAISKINIMAS PABAIGA: Paysera mokejimo nuorodos kurimas
     public function buildCheckoutUrl(Order $order): string
     {
         if (!$this->isConfigured()) {
             throw new RuntimeException('Paysera dar nesukonfigūruota.');
         }
 
+        // GYNIMO PAAISKINIMAS PRADZIA: duomenys siunciami Paysera
+        // Cia sudedami Paysera reikalingi laukai: projectid, orderid, amount, currency ir callback adresai.
+        // Amount siunciamas centais, todel eurai pries tai paverciami i centus.
+        // GYNIMO PAAISKINIMAS PABAIGA: duomenys siunciami Paysera
         $request = WebToPay::buildRequest([
             'projectid' => $this->getProjectId(),
             'sign_password' => $this->getSignPassword(),
@@ -65,6 +81,10 @@ class PayseraService
     // KODO PABAIGA: Paysera redirect URL sukūrimas
 
     // KODO PRADŽIA: Paysera callback patikra
+    // GYNIMO PAAISKINIMAS PRADZIA: Paysera callback tikrinimas service faile
+    // Cia Paysera biblioteka patikrina callback duomenis.
+    // Jei parasas blogas arba duomenys neteisingi, bus klaida ir statusai nebus pakeisti.
+    // GYNIMO PAAISKINIMAS PABAIGA: Paysera callback tikrinimas service faile
     public function validateCallback(array $request): array
     {
         if (!$this->isConfigured()) {
@@ -80,6 +100,10 @@ class PayseraService
     }
 
     // Čia saugumo patikra: ar klientas apmokėjo būtent tą sumą, kuri yra užsakyme.
+    // GYNIMO PAAISKINIMAS PRADZIA: Paysera sumos ir orderio patikrinimas
+    // Cia tikrinama ar Paysera orderid sutampa su musu uzsakymo id.
+    // Taip pat tikrinama suma, kad apmoketa suma atitiktu uzsakymo suma.
+    // GYNIMO PAAISKINIMAS PABAIGA: Paysera sumos ir orderio patikrinimas
     public function assertPaymentMatches(Order $order, array $response): void
     {
         $expectedAmount = $this->toCents((float) $order->total_amount);
@@ -100,6 +124,10 @@ class PayseraService
 
     // KODO PABAIGA: Paysera callback patikra
 
+    // GYNIMO PAAISKINIMAS PRADZIA: eurai i centus
+    // Paysera sumas priima centais, todel cia eurai paverciami i centus.
+    // Pvz 25.50 euro tampa 2550 centu.
+    // GYNIMO PAAISKINIMAS PABAIGA: eurai i centus
     private function toCents(float $amount): int
     {
         return (int) round($amount * 100);

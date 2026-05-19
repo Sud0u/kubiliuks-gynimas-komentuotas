@@ -12,6 +12,10 @@ use Illuminate\Support\Str;
 
 class ProductAdminController extends Controller
 {
+    // GYNIMO PAAISKINIMAS PRADZIA: admin produktu sarasas
+    // Cia admin mato produktu sarasa.
+    // Galima filtruoti pagal paieska, kategorija ir aktyvumo busena.
+    // GYNIMO PAAISKINIMAS PABAIGA: admin produktu sarasas
     public function index(Request $request)
     {
         $status = $request->query('status', 'active');
@@ -50,6 +54,10 @@ class ProductAdminController extends Controller
         ));
     }
 
+    // GYNIMO PAAISKINIMAS PRADZIA: produkto kurimo forma
+    // Cia atidaroma forma naujai prekei sukurti.
+    // I forma perduodamos kategorijos, kad admin galetu pasirinkti prekes kategorija.
+    // GYNIMO PAAISKINIMAS PABAIGA: produkto kurimo forma
     public function create()
     {
         $categories = Category::query()->orderBy('name')->get();
@@ -59,8 +67,16 @@ class ProductAdminController extends Controller
 
     // KODO PRADŽIA: admin prekės sukūrimas
     // Čia administratorius sukuria prekę, įkelia nuotraukas ir sistema sugeneruoja slug.
+    // GYNIMO PAAISKINIMAS PRADZIA: naujos prekes issaugojimas
+    // Cia issaugoma nauja preke.
+    // Duomenys jau buna patikrinti ProductUpsertRequest faile.
+    // GYNIMO PAAISKINIMAS PABAIGA: naujos prekes issaugojimas
     public function store(ProductUpsertRequest $request)
     {
+        // GYNIMO PAAISKINIMAS PRADZIA: validuoti admin duomenys
+        // Cia paimami tik validuoti formos duomenys.
+        // Tai reiskia, kad i DB nepatenka laukai, kuriu neleidziame issaugoti.
+        // GYNIMO PAAISKINIMAS PABAIGA: validuoti admin duomenys
         $data = $request->validated();
 
         unset($data['gallery_images'], $data['remove_gallery_images']);
@@ -88,6 +104,10 @@ class ProductAdminController extends Controller
             ->with('success', 'Prekė sukurta.');
     }
 
+    // GYNIMO PAAISKINIMAS PRADZIA: produkto redagavimo forma
+    // Cia atidaromas esamos prekes redagavimas.
+    // Laravel pagal route automatiskai paduoda Product modeli.
+    // GYNIMO PAAISKINIMAS PABAIGA: produkto redagavimo forma
     public function edit(Product $product)
     {
         $categories = Category::query()->orderBy('name')->get();
@@ -97,6 +117,10 @@ class ProductAdminController extends Controller
 
     // KODO PABAIGA: admin prekės sukūrimas
 
+    // GYNIMO PAAISKINIMAS PRADZIA: prekes atnaujinimas
+    // Cia admin pakeicia prekes informacija.
+    // Vel naudojamas ProductUpsertRequest, todel ir kurimas ir redagavimas turi ta pacia validacija.
+    // GYNIMO PAAISKINIMAS PABAIGA: prekes atnaujinimas
     public function update(ProductUpsertRequest $request, Product $product)
     {
         $data = $request->validated();
@@ -129,6 +153,10 @@ class ProductAdminController extends Controller
             ->with('success', 'Prekė atnaujinta.');
     }
 
+    // GYNIMO PAAISKINIMAS PRADZIA: prekes trynimas
+    // Cia admin gali istrinti preke.
+    // Pries trinant pasalinamos ir su preke susijusios nuotraukos.
+    // GYNIMO PAAISKINIMAS PABAIGA: prekes trynimas
     public function destroy(Product $product)
     {
         if ($product->orderItems()->exists()) {
@@ -162,6 +190,10 @@ class ProductAdminController extends Controller
     }
 
     // KODO PRADŽIA: papildomų produkto nuotraukų saugojimas
+    // GYNIMO PAAISKINIMAS PRADZIA: galerijos nuotrauku issaugojimas
+    // Cia issaugomos papildomos prekes nuotraukos.
+    // Jos naudojamos prekes puslapyje kaip galerija.
+    // GYNIMO PAAISKINIMAS PABAIGA: galerijos nuotrauku issaugojimas
     private function storeGalleryImages(ProductUpsertRequest $request): array
     {
         if (!$request->hasFile('gallery_images')) {
@@ -193,6 +225,10 @@ class ProductAdminController extends Controller
             ->all();
     }
 
+    // GYNIMO PAAISKINIMAS PRADZIA: galerijos nuotrauku salinimas
+    // Cia admin gali pasalinti pasirinktas galerijos nuotraukas.
+    // Is masyvo paliekamos tik tos, kuriu nereikia istrinti.
+    // GYNIMO PAAISKINIMAS PABAIGA: galerijos nuotrauku salinimas
     private function removeGalleryImages(ProductUpsertRequest $request, array $galleryImages): array
     {
         $removeImages = collect($request->input('remove_gallery_images', []))
@@ -236,6 +272,10 @@ class ProductAdminController extends Controller
         }
     }
 
+    // GYNIMO PAAISKINIMAS PRADZIA: unikalaus slug kurimas
+    // Slug yra nuorodos dalis, pvz medinis-kubilas.
+    // Cia uzdedama apsauga, kad keli produktai neturetu tokio pacio slug.
+    // GYNIMO PAAISKINIMAS PABAIGA: unikalaus slug kurimas
     private function generateUniqueSlug(?string $nameInput, ?int $ignoreProductId = null): string
     {
         $baseSlug = Str::slug(trim((string) $nameInput));

@@ -2,6 +2,10 @@
 
 @section('title', 'Užsakymo pateikimas')
 
+{{-- GYNIMO PAAISKINIMAS PRADZIA: checkout puslapis --}}
+{{-- Sitas failas yra vartotojo uzsakymo pateikimo puslapis. --}}
+{{-- Cia yra forma, kur vartotojas iveda kontakta, adresa ir pasirenka mokejimo buda. --}}
+{{-- GYNIMO PAAISKINIMAS PABAIGA: checkout puslapis --}}
 @section('content')
 <section class="py-8 sm:py-12 bg-stone-50">
     <div class="max-w-6xl mx-auto px-4 lg:px-0">
@@ -94,7 +98,11 @@
                             <div class="text-lg font-bold text-stone-900">Pirkėjo informacija</div>
                         </div>
 
-                        <form id="checkoutForm" class="grid gap-4 md:grid-cols-2" novalidate>
+                        {{-- GYNIMO PAAISKINIMAS PRADZIA: checkout forma --}}
+{{-- Cia prasideda forma, kurios duomenys veliau issiunciami i API. --}}
+{{-- Backend puseje OrderController dar karta patikrina visus laukus. --}}
+{{-- GYNIMO PAAISKINIMAS PABAIGA: checkout forma --}}
+<form id="checkoutForm" class="grid gap-4 md:grid-cols-2" novalidate>
                             <input
                                 type="text"
                                 name="website"
@@ -314,7 +322,11 @@
     const summaryCount = document.getElementById('summaryCount');
     const summaryTotal = document.getElementById('summaryTotal');
     const summaryPayment = document.getElementById('summaryPayment');
-    const checkoutForm = document.getElementById('checkoutForm');
+    // GYNIMO PAAISKINIMAS PRADZIA: checkout JavaScript forma
+// Cia JavaScript pasiima checkout forma is puslapio.
+// Veliau prie jos pridedamas submit veiksmas, kad uzsakymas butu siunciamas per API.
+// GYNIMO PAAISKINIMAS PABAIGA: checkout JavaScript forma
+const checkoutForm = document.getElementById('checkoutForm');
     const submitBtn = document.getElementById('submitBtn');
     const paymentMethodInput = document.getElementById('payment_method');
     const paymentChoices = document.querySelectorAll('.payment-choice');
@@ -584,7 +596,11 @@
 
     // KODO PABAIGA: checkout frontend validacija
 
-    async function api(url, method = 'GET', body = null) {
+    // GYNIMO PAAISKINIMAS PRADZIA: checkout async funkcija
+// Cia prasideda async funkcija, nes reikia laukti serverio atsakymo.
+// Uzsakymo pateikimas vyksta fone be papildomo rankinio perkrovimo.
+// GYNIMO PAAISKINIMAS PABAIGA: checkout async funkcija
+async function api(url, method = 'GET', body = null) {
         const headers = {
             'Accept': 'application/json',
             'X-CSRF-TOKEN': csrf(),
@@ -602,6 +618,10 @@
             options.body = JSON.stringify(body);
         }
 
+        // GYNIMO PAAISKINIMAS PRADZIA: uzsakymo siuntimas i serveri
+        // Cia checkout duomenys issiunciami i Laravel API.
+        // Serveris tada sukuria uzsakyma arba grazina validacijos klaidas.
+        // GYNIMO PAAISKINIMAS PABAIGA: uzsakymo siuntimas i serveri
         const response = await fetch(url, options);
 
         let data = null;

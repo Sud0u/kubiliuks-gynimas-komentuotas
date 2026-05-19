@@ -6,6 +6,11 @@
 @php
     // KODO PRADŽIA: individualaus kubilo pasirinkimai
     // Čia aprašyti variantai, kuriuos klientas mato puslapyje: vidus, mediena, dydis ir kainos priedai.
+    // GYNIMO PAAISKINIMAS PRADZIA: vidaus spalvos
+    // Cia yra vidaus spalvu masyvas.
+    // Kiekvienas variantas turi key, label, price, hex ir text_color.
+    // key yra techninis pavadinimas kodui, label rodomas vartotojui, price prideda kaina.
+    // GYNIMO PAAISKINIMAS PABAIGA: vidaus spalvos
     $insideOptions = [
         [
             'key' => 'balta',
@@ -37,6 +42,11 @@
         ],
     ];
 
+    // GYNIMO PAAISKINIMAS PRADZIA: medienos spalvos
+    // Cia yra medienos pasirinkimai.
+    // Sitie key veliau naudojami nuotraukos pavadinimui sudaryti, pvz chestnut-ruda.
+    // Price reiskia papildoma kaina uz pasirinkta mediena.
+    // GYNIMO PAAISKINIMAS PABAIGA: medienos spalvos
     $woodOptions = [
         [
             'key' => 'base-ruda',
@@ -68,6 +78,11 @@
         ],
     ];
 
+    // GYNIMO PAAISKINIMAS PRADZIA: kubilo dydziai
+    // Cia aprasyti kubilo dydziai.
+    // Kiekvienas dydis turi savo technini key, vartotojui rodoma label ir kainos prieda.
+    // Didesnis kubilas kainuoja daugiau, todel price gali buti 300 arba 650.
+    // GYNIMO PAAISKINIMAS PABAIGA: kubilo dydziai
     $sizeOptions = [
         [
             'key' => '180',
@@ -86,6 +101,11 @@
         ],
     ];
 
+    // GYNIMO PAAISKINIMAS PRADZIA: bazine kaina ir nuotrauku keliai
+    // Cia nustatoma bazine kubilo kaina.
+    // Nuo jos veliau skaiciuojama galutine suma: bazine kaina + dydis + vidus + mediena.
+    // imagesBase nurodo folderi, kuriame laikomos kubilo kombinaciju nuotraukos.
+    // GYNIMO PAAISKINIMAS PABAIGA: bazine kaina ir nuotrauku keliai
     $basePrice = 2200;
     $imageVersion = 'v3';
     $baseImage = asset('images/kubilai/balta-base-ruda.png') . '?v=' . $imageVersion;
@@ -297,6 +317,10 @@
                                 <h3 class="text-2xl font-extrabold tracking-tight text-stone-900">Dydis</h3>
 
                                 <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    {{-- GYNIMO PAAISKINIMAS PRADZIA: dydzio korteles --}}
+                                    {{-- Cia per foreach isvedami visi kubilo dydziai. --}}
+                                    {{-- Kiekvienas dydis turi data-price, todel JavaScript veliau gali paimti kainos prieda. --}}
+                                    {{-- GYNIMO PAAISKINIMAS PABAIGA: dydzio korteles --}}
                                     @foreach($sizeOptions as $index => $size)
                                         <label class="builder-size-card size-card p-4 {{ $index === 0 ? 'is-active' : '' }}">
                                             <input
@@ -323,6 +347,10 @@
                                 <h3 class="text-2xl font-extrabold tracking-tight text-stone-900">Vidaus spalva</h3>
 
                                 <div class="mt-5 grid builder-option-grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    {{-- GYNIMO PAAISKINIMAS PRADZIA: vidaus spalvu korteles --}}
+                                    {{-- Cia isvedamos vidaus spalvos. --}}
+                                    {{-- data-label, data-price ir data-hex veliau naudojami santraukai, kainai ir spalvos zenklui. --}}
+                                    {{-- GYNIMO PAAISKINIMAS PABAIGA: vidaus spalvu korteles --}}
                                     @foreach($insideOptions as $index => $inside)
                                         <label class="builder-swatch-card inside-card p-4 {{ $index === 0 ? 'is-active' : '' }}">
                                             <input
@@ -358,6 +386,10 @@
                                 <h3 class="text-2xl font-extrabold tracking-tight text-stone-900">Medienos spalva</h3>
 
                                 <div class="mt-5 grid builder-option-grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    {{-- GYNIMO PAAISKINIMAS PRADZIA: medienos korteles --}}
+                                    {{-- Cia isvedamos medienos spalvos. --}}
+                                    {{-- Pasirinkta mediena kartu su vidaus spalva sudaro nuotraukos failo pavadinima. --}}
+                                    {{-- GYNIMO PAAISKINIMAS PABAIGA: medienos korteles --}}
                                     @foreach($woodOptions as $index => $wood)
                                         <label class="builder-swatch-card wood-card p-4 {{ $index === 0 ? 'is-active' : '' }}">
                                             <input
@@ -503,17 +535,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const builderMsg = document.getElementById('builder-msg');
 
     // Ši funkcija gražiai suformatuoja kainą lietuvišku formatu, pvz. 2 200 €.
+    // GYNIMO PAAISKINIMAS PRADZIA: kainos formatavimas
+    // Cia kaina paverciama i grazesni lietuviska formata.
+    // Pvz vietoj 2200 vartotojas mato 2 200 €.
+    // GYNIMO PAAISKINIMAS PABAIGA: kainos formatavimas
     function formatPrice(price) {
         return new Intl.NumberFormat('lt-LT').format(price) + ' €';
     }
 
     // Ši funkcija paima CSRF tokeną, kad API užklausos būtų saugesnės.
+    // GYNIMO PAAISKINIMAS PRADZIA: CSRF tokenas
+    // Cia paimamas CSRF tokenas is meta tago.
+    // Jis reikalingas, kad Laravel zinotu jog uzklausa ateina is musu puslapio.
+    // GYNIMO PAAISKINIMAS PABAIGA: CSRF tokenas
     function csrf() {
         const meta = document.querySelector('meta[name="csrf-token"]');
         return meta ? meta.getAttribute('content') : '';
     }
 
     // Pasiimam dabar pažymėtą dydžio variantą
+    // GYNIMO PAAISKINIMAS PRADZIA: paimamas pasirinktas dydis
+    // Cia surandamas tas dydzio radio inputas, kuris dabar yra pazymetas.
+    // Jei vartotojas pasirenka 200 cm, sita funkcija grazina 200 cm varianta.
+    // GYNIMO PAAISKINIMAS PABAIGA: paimamas pasirinktas dydis
     function getSelectedSize() {
         return document.querySelector('.size-option:checked');
     }
@@ -529,6 +573,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Ši funkcija nuima aktyvų stilių nuo visų kortelių ir uždeda jį tik pasirinktai kortelei.
+    // GYNIMO PAAISKINIMAS PRADZIA: aktyvios korteles stilius
+    // Cia nuimamas aktyvus stilius nuo visu korteliu ir uzdedamas tik pasirinktai.
+    // Taip vartotojas vizualiai mato, kuris dydis, spalva ar mediena dabar pasirinkta.
+    // GYNIMO PAAISKINIMAS PABAIGA: aktyvios korteles stilius
     function setActiveCard(cards, selectedInput) {
         cards.forEach(card => card.classList.remove('is-active'));
 
@@ -550,6 +598,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Vartotojui tai atrodo kaip layerių keitimas, nes keičiasi atskiros kubilo dalys,
     // bet techniškai pagal pasirinkimų kombinaciją parenkama konkreti paruošta nuotrauka.
     function currentImagePath() {
+        // GYNIMO PAAISKINIMAS PRADZIA: dabartiniai pasirinkimai
+        // Cia paimama, koki vidaus varianta ir kokia mediena vartotojas pasirinko.
+        // Pvz selectedInside gali buti melyna, o selectedWood gali buti chestnut-ruda.
+        // GYNIMO PAAISKINIMAS PABAIGA: dabartiniai pasirinkimai
         const selectedInside = getSelectedInside();
         const selectedWood = getSelectedWood();
 
@@ -566,6 +618,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // KODO PRADŽIA: kainos skaičiavimas
     // Čia skaičiuojama galutinė kaina: bazinė kaina + dydis + vidus + mediena.
     // Pvz. bazė 2200 €, didesnis dydis +300 €, spalva +90 €, mediena +120 €.
+    // GYNIMO PAAISKINIMAS PRADZIA: galutines kainos skaiciavimas
+    // Sita funkcija yra viena svarbiausiu builderyje.
+    // Ji paima pasirinkto dydzio, vidaus spalvos ir medienos kainos priedus.
+    // Tada viska prideda prie bazines kubilo kainos.
+    // GYNIMO PAAISKINIMAS PABAIGA: galutines kainos skaiciavimas
     function currentTotal() {
         const selectedSize = getSelectedSize();
         const selectedInside = getSelectedInside();
@@ -573,11 +630,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // dataset.price reiškia, kad kaina paimama iš HTML data-price atributo.
         // Number() paverčia tekstą į skaičių, kad būtų galima normaliai sudėti kainas.
+        // GYNIMO PAAISKINIMAS PRADZIA: kainu priedai is data-price
+        // Cia is HTML data-price atributu paimami kainos priedai.
+        // Jei kazkas nepasirinkta, naudojamas 0, kad skaiciavimas nesugriutu.
+        // Number() reikalingas nes data-price ateina kaip tekstas, o mums reikia skaiciaus.
+        // GYNIMO PAAISKINIMAS PABAIGA: kainu priedai is data-price
         const sizePrice = selectedSize ? Number(selectedSize.dataset.price) : 0;
         const insidePrice = selectedInside ? Number(selectedInside.dataset.price) : 0;
         const woodPrice = selectedWood ? Number(selectedWood.dataset.price) : 0;
 
         // Čia grąžinama galutinė kubilo kaina.
+        // GYNIMO PAAISKINIMAS PRADZIA: galutine suma
+        // Cia sudedama bazine kaina ir visi vartotojo pasirinkimu priedai.
+        // Butent sita suma rodoma vartotojui kaip galutine kubilo kaina.
+        // GYNIMO PAAISKINIMAS PABAIGA: galutine suma
         return basePrice + sizePrice + insidePrice + woodPrice;
     }
     // KODO PABAIGA: kainos skaičiavimas
@@ -605,6 +671,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Kai žmogus pakeičia vidaus arba medienos spalvą, ši funkcija atnaujina kubilo nuotrauką.
     // Čia yra viena svarbiausių builderio vietų, nes vartotojas iš karto mato savo pasirinkimą.
     //----------- Šita funkcija parenka, kokią kubilo nuotrauką rodyti.
+    // GYNIMO PAAISKINIMAS PRADZIA: nuotraukos pakeitimas
+    // Cia funkcija atsakinga uz tai, kad pasirinkus spalvas pasikeistu kubilo vaizdas.
+    // Sistema nedaro sudetingo layeriu renderinimo, o parenka paruosta nuotrauka pagal pavadinima.
+    // GYNIMO PAAISKINIMAS PABAIGA: nuotraukos pakeitimas
     function updatePreview() { 
         // Čia pasiimami dabartiniai vartotojo pasirinkimai. selectedInside reiškia pasirinktą vidaus spalvą, o selectedWood reiškia pasirinktą medienos spalvą.
         const selectedInside = getSelectedInside();
@@ -617,9 +687,19 @@ document.addEventListener('DOMContentLoaded', function () {
         // Čia sujungiamos pasirinktos reikšmės į nuotraukos failo pavadinimą.
         // Pvz. selectedInside.value = melyna, selectedWood.value = chestnut-ruda.
         // Tada gauname: melyna-chestnut-ruda.png.
+        // GYNIMO PAAISKINIMAS PRADZIA: nuotraukos failo pavadinimas
+        // Cia sujungiamos dvi reiksmes: vidaus spalva ir medienos spalva.
+        // Pvz gaunasi melyna-chestnut-ruda.png.
+        // Taip sistema zino kuria is 16 nuotrauku reikia parodyti.
+        // ?v=imageVersion padeda neatidaryti senos nuotraukos is narsykles cache.
+        // GYNIMO PAAISKINIMAS PABAIGA: nuotraukos failo pavadinimas
         const imageName = `${selectedInside.value}-${selectedWood.value}.png?v=${imageVersion}`;
 
         // Čia gaunamas pilnas nuotraukos kelias, kurį vėliau įdedame į <img src>.
+        // GYNIMO PAAISKINIMAS PRADZIA: pilnas nuotraukos kelias
+        // Cia prie nuotraukos pavadinimo pridedamas folderio kelias.
+        // Gaunamas pilnas src kelias, kuri veliau gauna pagrindine nuotrauka.
+        // GYNIMO PAAISKINIMAS PABAIGA: pilnas nuotraukos kelias
         const nextSrc = `${imagesBase}/${imageName}`;
 
         previewImage.classList.add('is-loading');
@@ -629,6 +709,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const preloader = new Image();
         preloader.onload = function () {
             // Čia realiai pakeičiama kubilo nuotrauka puslapyje.
+            // GYNIMO PAAISKINIMAS PRADZIA: realus vaizdo pakeitimas
+            // Sita eilute realiai pakeicia pagrindines nuotraukos src.
+            // Del to ekrane pasikeicia kubilo nuotrauka pagal vartotojo pasirinkimus.
+            // GYNIMO PAAISKINIMAS PABAIGA: realus vaizdo pakeitimas
             previewImage.src = nextSrc;
 
             // alt tekstas padeda prieinamumui ir aprašo, koks variantas rodomas.
@@ -650,6 +734,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // KODO PRADŽIA: santraukos atnaujinimas
     // Ši funkcija atnaujina kainą, pasirinktą dydį, vidų, medieną ir viršuje esančius ženkliukus.
+    // GYNIMO PAAISKINIMAS PRADZIA: santraukos atnaujinimas
+    // Cia atnaujinama viskas ka vartotojas mato sonineje santraukoje.
+    // Atnaujinama kaina, dydis, vidus, mediena ir mazi badge uzrasai virs nuotraukos.
+    // GYNIMO PAAISKINIMAS PABAIGA: santraukos atnaujinimas
     function updateSummary() {
         const selectedSize = getSelectedSize();
         const selectedInside = getSelectedInside();
@@ -703,6 +791,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Bendra funkcija API užklausoms.
     // Ji prideda CSRF tokeną, kad Laravel priimtų saugią POST užklausą.
     // Ši funkcija siunčia užklausas į API, pvz. kai dedame individualų kubilą į krepšelį.
+    // GYNIMO PAAISKINIMAS PRADZIA: bendra API funkcija
+    // Cia yra pagalbine funkcija, kuri siuncia uzklausas i Laravel API.
+    // Ji naudojama kai reikia ideti custom kubila i krepseli be pilno puslapio perkrovimo.
+    // GYNIMO PAAISKINIMAS PABAIGA: bendra API funkcija
     async function api(url, method = 'GET', body = null) {
         const headers = {
             'Accept': 'application/json',
@@ -722,6 +814,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // fetch išsiunčia užklausą į serverį ir laukia atsakymo.
+        // GYNIMO PAAISKINIMAS PRADZIA: fetch uzklausa
+        // Cia narsykle issiuncia uzklausa i serveri ir laukia atsakymo.
+        // Jei serveris grazina klaida, zemiau kodas parodo klaidos zinute vartotojui.
+        // GYNIMO PAAISKINIMAS PABAIGA: fetch uzklausa
         const response = await fetch(url, options);
 
         let data = null;
@@ -739,6 +835,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // KODO PRADŽIA: individualaus kubilo įdėjimas į krepšelį
     // Čia iš pasirinktų radio mygtukų paimamas dydis, vidaus spalva ir medienos spalva.
+    // GYNIMO PAAISKINIMAS PRADZIA: custom kubilo idejimas i krepseli
+    // Sita funkcija veikia kai vartotojas spaudzia mygtuka ideti i krepseli.
+    // Ji paima pasirinkta dydi, vidaus spalva ir mediena, tada issiuncia i backend.
+    // GYNIMO PAAISKINIMAS PABAIGA: custom kubilo idejimas i krepseli
     async function addIndividualTubToCart() {
         const selectedSize = getSelectedSize();
         const selectedInside = getSelectedInside();
@@ -757,6 +857,11 @@ document.addEventListener('DOMContentLoaded', function () {
             // Čia pasirinktas individualus kubilas siunčiamas į serverį.
             // Backend pusėje šitą užklausą priima CartController::addCustomTub().
             // Į serverį perduodamas dydis, vidus, mediena ir kiekis.
+            // GYNIMO PAAISKINIMAS PRADZIA: siunciami pasirinkimai i serveri
+            // Cia pasirinktus duomenis issiunciame i API adresa /api/v1/cart/custom-tub.
+            // Siunciami ne tekstai bet raktai: size_key, inside_key, wood_key ir kiekis.
+            // Backend puseje tie raktai dar karta patikrinami ir pagal juos perskaiciuojama kaina.
+            // GYNIMO PAAISKINIMAS PABAIGA: siunciami pasirinkimai i serveri
             await api('/api/v1/cart/custom-tub', 'POST', {
                 size_key: selectedSize.value,
                 inside_key: selectedInside.value,
@@ -788,6 +893,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // KODO PRADŽIA: vartotojo paspaudimų / pasirinkimų stebėjimas
     // forEach pereina per kiekvieną dydžio input'ą atskirai.
     // addEventListener('change') reiškia: kai vartotojas pakeičia dydį, paleidžiama updateBuilder funkcija.
+    // GYNIMO PAAISKINIMAS PRADZIA: paspaudimu klausytojai
+    // Cia prie kiekvieno pasirinkimo pridedamas change veiksmas.
+    // Kai vartotojas pakeicia dydi, vidaus spalva ar mediena, iskart atnaujinama santrauka ir nuotrauka.
+    // GYNIMO PAAISKINIMAS PABAIGA: paspaudimu klausytojai
     sizeOptions.forEach(option => {
         option.addEventListener('change', updateBuilder);
     });

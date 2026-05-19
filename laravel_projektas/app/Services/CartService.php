@@ -7,33 +7,33 @@ use Illuminate\Support\Facades\Session;
 
 class CartService
 {
-    // GYNIMO PAAISKINIMAS PRADZIA: krepselio sesijos raktas
+    // krepselio sesijos raktas komentaro pradzia
     // Krepselis saugomas sesijoje su raktu cart.
     // Tai reiskia, kad vartotojo krepselis laikomas narsymo sesijoje, kol jis perka.
-    // GYNIMO PAAISKINIMAS PABAIGA: krepselio sesijos raktas
+    // krepselio sesijos raktas komentaro pabaiga
     private string $sessionKey = 'cart';
 
-    // GYNIMO PAAISKINIMAS PRADZIA: krepselio gavimas
+    // krepselio gavimas komentaro pradzia
     // Sita funkcija paima krepseli is sesijos.
     // Jei krepselio dar nera, grazinamas tuscias masyvas, kad kodas nesugriutu.
-    // GYNIMO PAAISKINIMAS PABAIGA: krepselio gavimas
+    // krepselio gavimas komentaro pabaiga
     public function get(): array
     {
         return Session::get($this->sessionKey, []);
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: paprastos prekes pridejimas
+    // paprastos prekes pridejimas komentaro pradzia
     // Cia i krepseli idedama paprasta preke is katalogo.
     // Jei tokia preke jau yra krepselyje, padidinamas jos kiekis.
     // Jei jos dar nera, sukuriamas naujas krepselio irasas.
-    // GYNIMO PAAISKINIMAS PABAIGA: paprastos prekes pridejimas
+    // paprastos prekes pridejimas komentaro pabaiga
     public function add(Product $product, int $qty = 1): void
     {
-        // GYNIMO PAAISKINIMAS PRADZIA: kiekio saugiklis
+        // kiekio saugiklis komentaro pradzia
         // Cia tikrinama ar kiekis nera mazesnis uz 1.
         // Jei ateitu 0 arba minusas, sistema vistiek padaro 1.
         // Taip apsaugoma, kad krepselyje nebutu blogo kiekio.
-        // GYNIMO PAAISKINIMAS PABAIGA: kiekio saugiklis
+        // kiekio saugiklis komentaro pabaiga
         if ($qty < 1) {
             $qty = 1;
         }
@@ -41,10 +41,10 @@ class CartService
         $cart = $this->get();
         $id = (int) $product->id;
 
-        // GYNIMO PAAISKINIMAS PRADZIA: ar preke jau yra krepselyje
+        // ar preke jau yra krepselyje komentaro pradzia
         // Cia tikrinama ar tokia preke jau egzistuoja krepselyje.
         // Jei egzistuoja, jos kiekis padidinamas. Jei ne, sukuriamas naujas irasas.
-        // GYNIMO PAAISKINIMAS PABAIGA: ar preke jau yra krepselyje
+        // ar preke jau yra krepselyje komentaro pabaiga
         if (isset($cart[$id])) {
             $cart[$id]['qty'] = (int) ($cart[$id]['qty'] ?? 0) + $qty;
             $cart[$id]['slug'] = $cart[$id]['slug'] ?? $product->slug;
@@ -65,14 +65,14 @@ class CartService
             ];
         }
 
-        // GYNIMO PAAISKINIMAS PRADZIA: krepselio issaugojimas
+        // krepselio issaugojimas komentaro pradzia
         // Cia atnaujintas krepselis irasomas atgal i sesija.
         // Be sitos eilutes pakeitimai neissisaugotu.
-        // GYNIMO PAAISKINIMAS PABAIGA: krepselio issaugojimas
+        // krepselio issaugojimas komentaro pabaiga
         Session::put($this->sessionKey, $cart);
     }
 
-    // KODO PRADŽIA: individualaus kubilo saugojimas sesijos krepšelyje
+    // individualaus kubilo saugojimas sesijos krepšelyje komentaro pradzia
     // Čia suformuojamas specialus krepšelio įrašas, kuris nėra paprasta prekė iš katalogo.
     public function addCustomTub(array $config, int $qty = 1): string
     {
@@ -80,10 +80,10 @@ class CartService
             $qty = 1;
         }
 
-        // GYNIMO PAAISKINIMAS PRADZIA: custom kubilo pasirinkimu paemimas
+        // custom kubilo pasirinkimu paemimas komentaro pradzia
         // Cia is config masyvo paimami individualaus kubilo pasirinkimai.
         // Jei kazkokios reiksmes nera, naudojamas saugus numatytas variantas.
-        // GYNIMO PAAISKINIMAS PABAIGA: custom kubilo pasirinkimu paemimas
+        // custom kubilo pasirinkimu paemimas komentaro pabaiga
         $sizeKey = (string) ($config['size_key'] ?? '180');
         $insideKey = (string) ($config['inside_key'] ?? 'balta');
         $woodKey = (string) ($config['wood_key'] ?? 'base-ruda');
@@ -92,26 +92,26 @@ class CartService
         $insideLabel = (string) ($config['inside_label'] ?? 'Balta');
         $woodLabel = (string) ($config['wood_label'] ?? 'Šviesi ruda');
 
-        // GYNIMO PAAISKINIMAS PRADZIA: custom kubilo kaina ir nuotrauka
+        // custom kubilo kaina ir nuotrauka komentaro pradzia
         // Cia paimama custom kubilo galutine kaina ir nuotraukos kelias.
         // Kaina jau buna paskaiciuota CartController faile backend puseje.
-        // GYNIMO PAAISKINIMAS PABAIGA: custom kubilo kaina ir nuotrauka
+        // custom kubilo kaina ir nuotrauka komentaro pabaiga
         $unitPrice = (float) ($config['price'] ?? 0);
         $image = (string) ($config['image'] ?? ('images/kubilai/' . $insideKey . '-' . $woodKey . '.png'));
 
         // Raktas sudaromas iš pasirinkimų, todėl ta pati komplektacija krepšelyje susijungia į vieną eilutę.
-        // GYNIMO PAAISKINIMAS PRADZIA: custom kubilo unikalus raktas
+        // custom kubilo unikalus raktas komentaro pradzia
         // Cia sukuriamas specialus raktas is dydzio, vidaus spalvos ir medienos.
         // Del to tokia pati komplektacija krepselyje susijungia i viena eilute.
-        // GYNIMO PAAISKINIMAS PABAIGA: custom kubilo unikalus raktas
+        // custom kubilo unikalus raktas komentaro pabaiga
         $key = $this->customTubKey($sizeKey, $insideKey, $woodKey);
 
         $cart = $this->get();
 
-        // GYNIMO PAAISKINIMAS PRADZIA: ar toks custom kubilas jau yra
+        // ar toks custom kubilas jau yra komentaro pradzia
         // Cia tikrinama ar toks pats individualus kubilas jau yra krepselyje.
         // Jei yra, padidinamas kiekis. Jei nera, sukuriamas naujas krepselio irasas.
-        // GYNIMO PAAISKINIMAS PABAIGA: ar toks custom kubilas jau yra
+        // ar toks custom kubilas jau yra komentaro pabaiga
         if (isset($cart[$key])) {
             $cart[$key]['qty'] = (int) ($cart[$key]['qty'] ?? 0) + $qty;
             $cart[$key]['price'] = $unitPrice;
@@ -119,10 +119,10 @@ class CartService
             $cart[$key]['name'] = 'Individualus kubilas';
             $cart[$key]['subtitle'] = $sizeLabel . ' · ' . $insideLabel . ' · ' . $woodLabel;
             // Meta dalyje saugomi pasirinkimai, kad vėliau juos matytume krepšelyje ir užsakyme.
-            // GYNIMO PAAISKINIMAS PRADZIA: custom kubilo meta informacija
+            // custom kubilo meta informacija komentaro pradzia
             // Meta dalyje saugomi visi pasirinkimai: dydis, vidus, mediena ir gamybos laikas.
             // Veliau sita informacija galima rodyti krepselyje arba uzsakymo santraukoje.
-            // GYNIMO PAAISKINIMAS PABAIGA: custom kubilo meta informacija
+            // custom kubilo meta informacija komentaro pabaiga
             $cart[$key]['meta'] = [
                 'builder_type' => 'custom_tub',
                 'size_key' => $sizeKey,
@@ -134,10 +134,10 @@ class CartService
                 'production_time' => '6–8 savaitės',
             ];
         } else {
-            // GYNIMO PAAISKINIMAS PRADZIA: naujas custom kubilo irasas
+            // naujas custom kubilo irasas komentaro pradzia
             // Cia sukuriamas naujas individualaus kubilo irasas krepselyje.
             // Type yra custom_tub, todel veliau sistema zino kad tai ne paprasta preke.
-            // GYNIMO PAAISKINIMAS PABAIGA: naujas custom kubilo irasas
+            // naujas custom kubilo irasas komentaro pabaiga
             $cart[$key] = [
                 'id' => null,
                 'cart_key' => $key,
@@ -165,11 +165,11 @@ class CartService
 
         return $key;
     }
-    // KODO PABAIGA: individualaus kubilo saugojimas sesijos krepšelyje
+    // individualaus kubilo saugojimas sesijos krepšelyje komentaro pabaiga
 
-    // GYNIMO PAAISKINIMAS PRADZIA: paprastos prekes kiekio atnaujinimas
+    // paprastos prekes kiekio atnaujinimas komentaro pradzia
     // Cia atnaujinamas paprastos katalogo prekes kiekis krepselyje.
-    // GYNIMO PAAISKINIMAS PABAIGA: paprastos prekes kiekio atnaujinimas
+    // paprastos prekes kiekio atnaujinimas komentaro pabaiga
     public function update(Product $product, int $qty): void
     {
         if ($qty < 1) {
@@ -193,10 +193,10 @@ class CartService
         Session::put($this->sessionKey, $cart);
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: custom iraso kiekio atnaujinimas
+    // custom iraso kiekio atnaujinimas komentaro pradzia
     // Cia atnaujinamas irasas pagal specialu cart key.
     // Tai naudojama custom_tub, nes jis neturi paprasto produkto id kaip katalogo preke.
-    // GYNIMO PAAISKINIMAS PABAIGA: custom iraso kiekio atnaujinimas
+    // custom iraso kiekio atnaujinimas komentaro pabaiga
     public function updateByKey(string $key, int $qty): void
     {
         if ($qty < 1) {
@@ -219,10 +219,10 @@ class CartService
         $this->removeById((int) $product->id);
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: salinimas pagal produkto id
+    // salinimas pagal produkto id komentaro pradzia
     // Cia pasalinama paprasta preke is krepselio pagal jos id.
     // Jei po salinimo krepselis tuscias, visa sesija isvaloma.
-    // GYNIMO PAAISKINIMAS PABAIGA: salinimas pagal produkto id
+    // salinimas pagal produkto id komentaro pabaiga
     public function removeById(int $productId): void
     {
         $cart = $this->get();
@@ -237,10 +237,10 @@ class CartService
         Session::put($this->sessionKey, $cart);
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: salinimas pagal custom key
+    // salinimas pagal custom key komentaro pradzia
     // Cia salinamas irasas pagal specialu rakta.
     // Tai reikalinga individualiam kubilui, nes jo raktas sudarytas is pasirinkimu.
-    // GYNIMO PAAISKINIMAS PABAIGA: salinimas pagal custom key
+    // salinimas pagal custom key komentaro pabaiga
     public function removeByKey(string $key): void
     {
         $cart = $this->get();
@@ -269,10 +269,10 @@ class CartService
         return isset($cart[$key]);
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: custom_tub atpazinimas
+    // custom_tub atpazinimas komentaro pradzia
     // Cia patikrinama ar krepselio raktas prasideda custom_tub--.
     // Jei taip, sistema zino kad tai individualus kubilas.
-    // GYNIMO PAAISKINIMAS PABAIGA: custom_tub atpazinimas
+    // custom_tub atpazinimas komentaro pabaiga
     public function isCustomKey(string $key): bool
     {
         return str_starts_with($key, 'custom_tub--');
@@ -283,10 +283,10 @@ class CartService
         Session::forget($this->sessionKey);
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: krepselio sumos skaiciavimas
+    // krepselio sumos skaiciavimas komentaro pradzia
     // Cia sudedamos visu krepselio prekiu sumos.
     // Kiekvienai eilutei kaina dauginama is kiekio ir tada viskas susumuojama.
-    // GYNIMO PAAISKINIMAS PABAIGA: krepselio sumos skaiciavimas
+    // krepselio sumos skaiciavimas komentaro pabaiga
     public function total(array $cart = null): float
     {
         $cart = $cart ?? $this->get();
@@ -296,10 +296,10 @@ class CartService
             ->sum();
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: krepselio paruosimas order items
+    // krepselio paruosimas order items komentaro pradzia
     // Cia krepselio elementai paverciami i paprasta struktura uzsakymo prekems.
     // Sita vieta naudinga kai uzsakymo kurimo metu reikia zinoti produkto id ir kieki.
-    // GYNIMO PAAISKINIMAS PABAIGA: krepselio paruosimas order items
+    // krepselio paruosimas order items komentaro pabaiga
     public function toOrderItems(array $cart = null): array
     {
         $cart = $cart ?? $this->get();
@@ -313,10 +313,10 @@ class CartService
             ->all();
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: custom kubilo rakto sudarymas
+    // custom kubilo rakto sudarymas komentaro pradzia
     // Cia is pasirinkto dydzio, vidaus spalvos ir medienos sudaromas vienas raktas.
     // Pvz custom_tub--200--melyna--chestnut-ruda.
-    // GYNIMO PAAISKINIMAS PABAIGA: custom kubilo rakto sudarymas
+    // custom kubilo rakto sudarymas komentaro pabaiga
     private function customTubKey(string $sizeKey, string $insideKey, string $woodKey): string
     {
         return 'custom_tub--' . $sizeKey . '--' . $insideKey . '--' . $woodKey;

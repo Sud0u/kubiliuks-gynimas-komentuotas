@@ -1,8 +1,8 @@
 <?php
-// GYNIMO PAAISKINIMAS PRADZIA: Hostinger public_html index
+// Hostinger public_html index komentaro pradzia
 // Sitas failas yra viesas Hostinger pradinis failas.
 // Jis paleidzia Laravel projekta, kuris laikomas ne public_html viduje.
-// GYNIMO PAAISKINIMAS PABAIGA: Hostinger public_html index
+// Hostinger public_html index komentaro pabaiga
 
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;

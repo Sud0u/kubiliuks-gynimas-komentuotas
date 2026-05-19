@@ -6,25 +6,25 @@ use Illuminate\Support\Facades\Http;
 
 class RecaptchaService
 {
-    // KODO PRADŽIA: reCAPTCHA patikra
+    // reCAPTCHA patikra komentaro pradzia
     // Čia tikrinama, ar prisijungimo / registracijos veiksmas nėra botas.
-    // GYNIMO PAAISKINIMAS PRADZIA: reCAPTCHA tokeno tikrinimas
+    // reCAPTCHA tokeno tikrinimas komentaro pradzia
     // Cia serverio puseje tikrinamas reCAPTCHA tokenas.
     // Tokenas padeda suprasti ar veiksma atliko tikras vartotojas, o ne botas.
-    // GYNIMO PAAISKINIMAS PABAIGA: reCAPTCHA tokeno tikrinimas
+    // reCAPTCHA tokeno tikrinimas komentaro pabaiga
     public function verify(?string $token, string $expectedAction): array
     {
-        // GYNIMO PAAISKINIMAS PRADZIA: ar recaptcha ijungta
+        // ar recaptcha ijungta komentaro pradzia
         // Cia paimama reiksme is config, kuri ateina is .env.
         // Local galima laikyti false, o live serveryje true.
-        // GYNIMO PAAISKINIMAS PABAIGA: ar recaptcha ijungta
+        // ar recaptcha ijungta komentaro pabaiga
         $enabled = (bool) config('services.recaptcha.enabled', false);
 
         // Local aplinkoje galima išjungti, kad būtų lengviau testuoti. Live serveryje įjungiama per .env.
-        // GYNIMO PAAISKINIMAS PRADZIA: kai recaptcha isjungta
+        // kai recaptcha isjungta komentaro pradzia
         // Jei recaptcha isjungta, metodas grazina ok true.
         // Taip local testavimas veikia net be Google patikros.
-        // GYNIMO PAAISKINIMAS PABAIGA: kai recaptcha isjungta
+        // kai recaptcha isjungta komentaro pabaiga
         if (!$enabled) {
             return [
                 'ok' => true,
@@ -33,10 +33,10 @@ class RecaptchaService
             ];
         }
 
-        // GYNIMO PAAISKINIMAS PRADZIA: slaptas recaptcha raktas ir score
+        // slaptas recaptcha raktas ir score komentaro pradzia
         // Cia paimamas slaptas Google raktas ir minimalus score.
         // Score parodo kiek veiksmas panasus i tikra zmogu.
-        // GYNIMO PAAISKINIMAS PABAIGA: slaptas recaptcha raktas ir score
+        // slaptas recaptcha raktas ir score komentaro pabaiga
         $secret = (string) config('services.recaptcha.secret_key');
         $minScore = (float) config('services.recaptcha.min_score', 0.5);
 
@@ -47,10 +47,10 @@ class RecaptchaService
             ];
         }
 
-        // GYNIMO PAAISKINIMAS PRADZIA: tokeno patikrinimas
+        // tokeno patikrinimas komentaro pradzia
         // Jei frontend neatsiuncia tokeno, saugumo patikra laikoma nepavykusia.
         // Tokenas reikalingas, kad Google galetu patikrinti veiksma.
-        // GYNIMO PAAISKINIMAS PABAIGA: tokeno patikrinimas
+        // tokeno patikrinimas komentaro pabaiga
         if (!$token) {
             return [
                 'ok' => false,
@@ -59,10 +59,10 @@ class RecaptchaService
         }
 
         // Tokenas siunčiamas Google patikrai.
-        // GYNIMO PAAISKINIMAS PRADZIA: uzklausa i Google recaptcha
+        // uzklausa i Google recaptcha komentaro pradzia
         // Cia serveris issiuncia tokena i Google siteverify API.
         // Google atsako ar tokenas galiojantis, koks action ir koks score.
-        // GYNIMO PAAISKINIMAS PABAIGA: uzklausa i Google recaptcha
+        // uzklausa i Google recaptcha komentaro pabaiga
         $response = Http::asForm()
             ->timeout(10)
             ->post('https://www.google.com/recaptcha/api/siteverify', [
@@ -79,10 +79,10 @@ class RecaptchaService
 
         $data = $response->json();
 
-        // GYNIMO PAAISKINIMAS PRADZIA: Google atsakymo nuskaitymas
+        // Google atsakymo nuskaitymas komentaro pradzia
         // Cia is Google atsakymo paimamas success, score ir action.
         // Sitie duomenys zemiau naudojami sprendimui ar leisti veiksma.
-        // GYNIMO PAAISKINIMAS PABAIGA: Google atsakymo nuskaitymas
+        // Google atsakymo nuskaitymas komentaro pabaiga
         $success = (bool) ($data['success'] ?? false);
         $score = (float) ($data['score'] ?? 0);
         $action = (string) ($data['action'] ?? '');
@@ -94,10 +94,10 @@ class RecaptchaService
             ];
         }
 
-        // GYNIMO PAAISKINIMAS PRADZIA: action sutapimas
+        // action sutapimas komentaro pradzia
         // Cia tikrinama ar veiksmas yra tas pats, kurio tikejomes.
         // Pvz registracijai turi buti register, o checkoutui kitas action jei naudojamas.
-        // GYNIMO PAAISKINIMAS PABAIGA: action sutapimas
+        // action sutapimas komentaro pabaiga
         if ($action !== $expectedAction) {
             return [
                 'ok' => false,
@@ -106,10 +106,10 @@ class RecaptchaService
         }
 
         // Score parodo, kiek veiksmas panašus į tikrą žmogų. Per mažas score atmetamas.
-        // GYNIMO PAAISKINIMAS PRADZIA: score patikrinimas
+        // score patikrinimas komentaro pradzia
         // Jei score per mazas, veiksmas atrodo itartinas.
         // Tada sistema grazina klaida ir neleidzia testi veiksmo.
-        // GYNIMO PAAISKINIMAS PABAIGA: score patikrinimas
+        // score patikrinimas komentaro pabaiga
         if ($score < $minScore) {
             return [
                 'ok' => false,
@@ -123,5 +123,5 @@ class RecaptchaService
             'action' => $action,
         ];
     }
-    // KODO PABAIGA: reCAPTCHA patikra
+    // reCAPTCHA patikra komentaro pabaiga
 }

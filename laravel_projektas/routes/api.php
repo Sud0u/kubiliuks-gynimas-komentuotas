@@ -11,13 +11,13 @@ use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\Admin\AdminProductController;
 use App\Http\Controllers\Api\V1\Admin\AdminOrderController;
 
-// KODO PRADŽIA: api.php maršrutai
+// api.php maršrutai komentaro pradzia
 // Šitas failas skirtas veiksmams be pilno puslapio perkrovimo.
 // Per šiuos maršrutus veikia krepšelis, checkout, admin užsakymai ir produktų API.
-// GYNIMO PAAISKINIMAS PRADZIA: API routes
+// API routes komentaro pradzia
 // Sitas failas skirtas veiksmams kurie vyksta per JavaScript.
 // Pvz krepselio atnaujinimas, prekes idejimas, custom kubilas arba uzsakymo pateikimas.
-// GYNIMO PAAISKINIMAS PABAIGA: API routes
+// API routes komentaro pabaiga
 Route::prefix('v1')->group(function () {
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{slug}', [ProductController::class, 'show']);
@@ -44,10 +44,10 @@ Route::prefix('v1')->group(function () {
         Route::middleware('throttle:cart')->group(function () {
             Route::get('/cart', [CartController::class, 'show']);
             Route::post('/cart/items', [CartController::class, 'addItem']);
-            // GYNIMO PAAISKINIMAS PRADZIA: custom kubilo API kelias
+            // custom kubilo API kelias komentaro pradzia
             // Sitas route priima JavaScript uzklausa is build_tub.blade.php.
             // Kai vartotojas spaudzia ideti individualu kubila i krepseli, uzklausa ateina cia.
-            // GYNIMO PAAISKINIMAS PABAIGA: custom kubilo API kelias
+            // custom kubilo API kelias komentaro pabaiga
             Route::post('/cart/custom-tub', [CartController::class, 'addCustomTub']);
             Route::patch('/cart/items/{id}', [CartController::class, 'updateItem']);
             Route::delete('/cart/items/{id}', [CartController::class, 'removeItem']);
@@ -79,4 +79,4 @@ Route::prefix('v1')->group(function () {
     });
 });
 
-// KODO PABAIGA: api.php maršrutai
+// api.php maršrutai komentaro pabaiga

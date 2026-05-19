@@ -20,12 +20,12 @@ class OrderController extends Controller
         private readonly PayseraService $paysera
     ) {}
 
-    // KODO PRADŽIA: checkout ir užsakymo sukūrimas
+    // checkout ir užsakymo sukūrimas komentaro pradzia
     // Šitas metodas gauna checkout formą, patikrina duomenis ir sukuria užsakymą.
-    // GYNIMO PAAISKINIMAS PRADZIA: checkout duomenu priemimas
+    // checkout duomenu priemimas komentaro pradzia
     // Sitas metodas veikia kai vartotojas checkout puslapyje spaudzia pateikti uzsakyma.
     // Jis patikrina duomenis ir perduoda uzsakymo kurima i OrderService.
-    // GYNIMO PAAISKINIMAS PABAIGA: checkout duomenu priemimas
+    // checkout duomenu priemimas komentaro pabaiga
     public function store(Request $request)
     {
         $user = auth()->user();
@@ -37,11 +37,11 @@ class OrderController extends Controller
         }
 
         // Backend validacija būtina, nes frontend validaciją žmogus gali apeiti per naršyklę.
-        // GYNIMO PAAISKINIMAS PRADZIA: checkout validacija per Validator
+        // checkout validacija per Validator komentaro pradzia
         // Cia patikrinami visi checkout formos laukai.
         // Pvz vardas privalomas, telefonas turi buti lietuvisko formato, pasto kodas 5 skaitmenys.
         // Jei kazkas blogai, uzsakymas nesukuriamas ir vartotojas gauna lietuviska klaida.
-        // GYNIMO PAAISKINIMAS PABAIGA: checkout validacija per Validator
+        // checkout validacija per Validator komentaro pabaiga
         $validator = Validator::make($request->all(), [
             'website' => ['nullable', 'max:255'],
             'customer_name' => ['required', 'string', 'max:255'],
@@ -71,10 +71,10 @@ class OrderController extends Controller
             'payment_method.in' => 'Pasirinktas netinkamas apmokėjimo būdas.',
         ]);
 
-        // GYNIMO PAAISKINIMAS PRADZIA: validacijos klaidos grazinimas
+        // validacijos klaidos grazinimas komentaro pradzia
         // Jei validacija nepraeina, cia grazinama pirma klaida ir visi error laukeliai.
         // Frontend gali parodyti zinute vartotojui checkout puslapyje.
-        // GYNIMO PAAISKINIMAS PABAIGA: validacijos klaidos grazinimas
+        // validacijos klaidos grazinimas komentaro pabaiga
         if ($validator->fails()) {
             return response()->json([
                 'message' => $validator->errors()->first(),
@@ -85,20 +85,20 @@ class OrderController extends Controller
         $data = $validator->validated();
 
         // Paslėptas website laukelis yra paprastas botų filtras. Žmogus jo nemato, botai dažnai užpildo.
-        // GYNIMO PAAISKINIMAS PRADZIA: pasleptas botu laukelis
+        // pasleptas botu laukelis komentaro pradzia
         // Website laukelio zmogus nemato, bet botai ji kartais uzpildo.
         // Jei jis uzpildytas, sistema uzsakymo nepriima.
-        // GYNIMO PAAISKINIMAS PABAIGA: pasleptas botu laukelis
+        // pasleptas botu laukelis komentaro pabaiga
         if (!empty($data['website'])) {
             return response()->json([
                 'message' => 'Nepavyko pateikti užsakymo.',
             ], 422);
         }
 
-        // GYNIMO PAAISKINIMAS PRADZIA: Paysera konfiguracijos patikrinimas
+        // Paysera konfiguracijos patikrinimas komentaro pradzia
         // Jei vartotojas pasirenka Paysera, bet Paysera nera sukonfiguruota, uzsakymo su Paysera neleidziame.
         // Taip apsaugoma, kad vartotojas nenueitu i neveikianti mokejima.
-        // GYNIMO PAAISKINIMAS PABAIGA: Paysera konfiguracijos patikrinimas
+        // Paysera konfiguracijos patikrinimas komentaro pabaiga
         if (($data['payment_method'] ?? '') === 'paysera' && !$this->paysera->isConfigured()) {
             return response()->json([
                 'message' => 'Mokėjimas banko pavedimu dar nesukonfigūruotas. Užpildykite Paysera duomenis .env faile.',
@@ -111,17 +111,17 @@ class OrderController extends Controller
         $data['shipping_address'] = trim((string) $data['shipping_address']);
         $data['shipping_city'] = trim((string) $data['shipping_city']);
         // Net jei kas nors bandytų pakeisti šalį per HTML, serveryje vėl nustatoma Lietuva.
-        // GYNIMO PAAISKINIMAS PRADZIA: salis uzrakinama backend puseje
+        // salis uzrakinama backend puseje komentaro pradzia
         // Net jeigu kazkas pakeistu HTML per inspect, serveris cia vistiek nustato Lietuva.
         // Tai padaryta, nes projekte pristatymas apribotas Lietuvai.
-        // GYNIMO PAAISKINIMAS PABAIGA: salis uzrakinama backend puseje
+        // salis uzrakinama backend puseje komentaro pabaiga
         $data['shipping_country'] = 'Lietuva';
 
         // Čia perduodama į OrderService, kur jau kuriamas orderis, order_items ir payment įrašas.
-        // GYNIMO PAAISKINIMAS PRADZIA: uzsakymo sukurimas per service
+        // uzsakymo sukurimas per service komentaro pradzia
         // Cia controlleris perduoda patikrintus kliento duomenis i OrderService.
         // Service jau atlieka pagrindini darba: sukuria order, order items ir payment.
-        // GYNIMO PAAISKINIMAS PABAIGA: uzsakymo sukurimas per service
+        // uzsakymo sukurimas per service komentaro pabaiga
         $order = $this->orders->createFromCart(
             $data,
             $data['payment_method'] ?? null
@@ -133,10 +133,10 @@ class OrderController extends Controller
         $message = 'Užsakymas gautas. Su jumis susisieksime dėl apmokėjimo ir pristatymo detalių.';
 
         // Jei pasirinkta Paysera, klientas nukreipiamas į Paysera mokėjimo langą.
-        // GYNIMO PAAISKINIMAS PRADZIA: nukreipimas i Paysera
+        // nukreipimas i Paysera komentaro pradzia
         // Jei pasirinktas Paysera mokejimas, cia sugeneruojama Paysera nuoroda.
         // Frontend gaus redirect_url ir nukreips vartotoja i mokejimo langa.
-        // GYNIMO PAAISKINIMAS PABAIGA: nukreipimas i Paysera
+        // nukreipimas i Paysera komentaro pabaiga
         if (($data['payment_method'] ?? '') === 'paysera') {
             $redirectUrl = $this->paysera->buildCheckoutUrl($order);
             $message = 'Užsakymas sukurtas. Tęsiame apmokėjimo žingsnį.';
@@ -156,12 +156,12 @@ class OrderController extends Controller
         ], 201);
     }
 
-    // KODO PABAIGA: checkout ir užsakymo sukūrimas
+    // checkout ir užsakymo sukūrimas komentaro pabaiga
 
-    // GYNIMO PAAISKINIMAS PRADZIA: vartotojo uzsakymu sarasas
+    // vartotojo uzsakymu sarasas komentaro pradzia
     // Sitas metodas grazina prisijungusio vartotojo uzsakymus.
     // Vartotojas mato tik savo uzsakymus, nes filtruojama pagal Auth::id().
-    // GYNIMO PAAISKINIMAS PABAIGA: vartotojo uzsakymu sarasas
+    // vartotojo uzsakymu sarasas komentaro pabaiga
     public function index(Request $request)
     {
         $userId = auth()->id();
@@ -178,10 +178,10 @@ class OrderController extends Controller
         return response()->json(['data' => $orders]);
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: vieno uzsakymo parodymas
+    // vieno uzsakymo parodymas komentaro pradzia
     // Cia parodomas konkretus vartotojo uzsakymas su prekemis ir payment informacija.
     // Jei uzsakymas nepriklauso vartotojui, jis nerodomas.
-    // GYNIMO PAAISKINIMAS PABAIGA: vieno uzsakymo parodymas
+    // vieno uzsakymo parodymas komentaro pabaiga
     public function show(Request $request, $id)
     {
         $user = auth()->user();
@@ -236,10 +236,10 @@ class OrderController extends Controller
         ]);
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: vartotojo uzsakymo atsaukimas
+    // vartotojo uzsakymo atsaukimas komentaro pradzia
     // Cia vartotojas gali atsaukti savo uzsakyma, jei jis dar pending ir neapmoketas.
     // Atsaukiant paprastu prekiu likuciai grazinami atgal i sandeli.
-    // GYNIMO PAAISKINIMAS PABAIGA: vartotojo uzsakymo atsaukimas
+    // vartotojo uzsakymo atsaukimas komentaro pabaiga
     public function cancel(Request $request, $id)
     {
         $user = auth()->user();
@@ -267,10 +267,10 @@ class OrderController extends Controller
         }
 
         // Atšaukimas daromas transakcijoje, kad kartu pasikeistų ir užsakymas, ir sandėlio likutis.
-        // GYNIMO PAAISKINIMAS PRADZIA: atsaukimo transakcija
+        // atsaukimo transakcija komentaro pradzia
         // Cia atsaukimas vykdomas transakcijoje.
         // Tai reiskia, kad statuso keitimas ir likuciu grazinimas vyksta kartu.
-        // GYNIMO PAAISKINIMAS PABAIGA: atsaukimo transakcija
+        // atsaukimo transakcija komentaro pabaiga
         DB::transaction(function () use ($order) {
             $productIds = $order->items
                 ->pluck('product_id')

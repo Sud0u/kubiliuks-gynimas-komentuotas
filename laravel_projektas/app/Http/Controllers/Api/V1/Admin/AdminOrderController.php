@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class AdminOrderController extends Controller
 {
-    // GYNIMO PAAISKINIMAS PRADZIA: admin uzsakymu sarasas
+    // admin uzsakymu sarasas komentaro pradzia
     // Cia admin gauna visus uzsakymus.
     // Galima ieskoti pagal kliento duomenis ir filtruoti pagal statusus.
-    // GYNIMO PAAISKINIMAS PABAIGA: admin uzsakymu sarasas
+    // admin uzsakymu sarasas komentaro pabaiga
     public function index(Request $request)
     {
         $status = trim((string) $request->query('status', 'all'));
@@ -99,10 +99,10 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: vieno uzsakymo perziura adminui
+    // vieno uzsakymo perziura adminui komentaro pradzia
     // Cia admin mato viena uzsakyma su prekemis ir mokejimu.
     // Tai reikalinga uzsakymo detaliam tikrinimui.
-    // GYNIMO PAAISKINIMAS PABAIGA: vieno uzsakymo perziura adminui
+    // vieno uzsakymo perziura adminui komentaro pabaiga
     public function show($id)
     {
         $order = Order::query()
@@ -156,12 +156,12 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    // KODO PRADŽIA: admin užsakymo statuso keitimas
+    // admin užsakymo statuso keitimas komentaro pradzia
     // Čia administratorius gali pakeisti statusą, bet tik pagal leidžiamą logiką.
-    // GYNIMO PAAISKINIMAS PRADZIA: uzsakymo statuso keitimas
+    // uzsakymo statuso keitimas komentaro pradzia
     // Cia admin pakeicia uzsakymo arba mokejimo busena.
     // Pvz pending gali tapti confirmed arba cancelled.
-    // GYNIMO PAAISKINIMAS PABAIGA: uzsakymo statuso keitimas
+    // uzsakymo statuso keitimas komentaro pabaiga
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -195,10 +195,10 @@ class AdminOrderController extends Controller
             ], 422);
         }
 
-        // GYNIMO PAAISKINIMAS PRADZIA: statuso keitimas transakcijoje
+        // statuso keitimas transakcijoje komentaro pradzia
         // Cia statusas keiciamas transakcijoje.
         // Jei uzsakymas atsaukiamas, tuo paciu gali buti grazinami prekiu likuciai.
-        // GYNIMO PAAISKINIMAS PABAIGA: statuso keitimas transakcijoje
+        // statuso keitimas transakcijoje komentaro pabaiga
         DB::transaction(function () use ($order, $oldStatus, $newStatus) {
             $order->load(['items', 'payment']);
 
@@ -258,10 +258,10 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: uzsakymo trynimas adminui
+    // uzsakymo trynimas adminui komentaro pradzia
     // Cia admin gali istrinti uzsakyma.
     // Jei reikia, trynimo metu sutvarkomi ir susije irasai.
-    // GYNIMO PAAISKINIMAS PABAIGA: uzsakymo trynimas adminui
+    // uzsakymo trynimas adminui komentaro pabaiga
     public function destroy($id)
     {
         $order = Order::query()->with('items')->findOrFail($id);
@@ -295,12 +295,12 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    // KODO PABAIGA: admin užsakymo statuso keitimas
+    // admin užsakymo statuso keitimas komentaro pabaiga
 
-    // GYNIMO PAAISKINIMAS PRADZIA: ar galima pereiti i nauja statusa
+    // ar galima pereiti i nauja statusa komentaro pradzia
     // Cia tikrinama statusu logika.
     // Ne visi statusu pakeitimai leidziami, kad uzsakymo eiga butu tvarkinga.
-    // GYNIMO PAAISKINIMAS PABAIGA: ar galima pereiti i nauja statusa
+    // ar galima pereiti i nauja statusa komentaro pabaiga
     private function isAllowedTransition(string $oldStatus, string $newStatus): bool
     {
         // Čia aiškiai aprašyta statusų schema.
@@ -335,11 +335,11 @@ class AdminOrderController extends Controller
         return 'Toks statuso perėjimas neleidžiamas.';
     }
 
-    // KODO PRADŽIA: sandėlio likučio grąžinimas
-    // GYNIMO PAAISKINIMAS PRADZIA: prekiu likuciu grazinimas
+    // sandėlio likučio grąžinimas komentaro pradzia
+    // prekiu likuciu grazinimas komentaro pradzia
     // Cia grazinami prekiu likuciai, jei uzsakymas atsaukiamas.
     // Tai svarbu, nes prekes buvo nuskaiciuotos kuriant uzsakyma.
-    // GYNIMO PAAISKINIMAS PABAIGA: prekiu likuciu grazinimas
+    // prekiu likuciu grazinimas komentaro pabaiga
     private function restoreStockForOrder(Order $order): void
     {
         $ids = $order->items
@@ -366,5 +366,5 @@ class AdminOrderController extends Controller
             $product->save();
         }
     }
-    // KODO PABAIGA: sandėlio likučio grąžinimas
+    // sandėlio likučio grąžinimas komentaro pabaiga
 }

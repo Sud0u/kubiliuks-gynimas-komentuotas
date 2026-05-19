@@ -12,10 +12,10 @@ use Illuminate\Support\Str;
 
 class ProductAdminController extends Controller
 {
-    // GYNIMO PAAISKINIMAS PRADZIA: admin produktu sarasas
+    // admin produktu sarasas komentaro pradzia
     // Cia admin mato produktu sarasa.
     // Galima filtruoti pagal paieska, kategorija ir aktyvumo busena.
-    // GYNIMO PAAISKINIMAS PABAIGA: admin produktu sarasas
+    // admin produktu sarasas komentaro pabaiga
     public function index(Request $request)
     {
         $status = $request->query('status', 'active');
@@ -54,10 +54,10 @@ class ProductAdminController extends Controller
         ));
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: produkto kurimo forma
+    // produkto kurimo forma komentaro pradzia
     // Cia atidaroma forma naujai prekei sukurti.
     // I forma perduodamos kategorijos, kad admin galetu pasirinkti prekes kategorija.
-    // GYNIMO PAAISKINIMAS PABAIGA: produkto kurimo forma
+    // produkto kurimo forma komentaro pabaiga
     public function create()
     {
         $categories = Category::query()->orderBy('name')->get();
@@ -65,18 +65,18 @@ class ProductAdminController extends Controller
         return view('admin.products.create', compact('categories'));
     }
 
-    // KODO PRADŽIA: admin prekės sukūrimas
+    // admin prekės sukūrimas komentaro pradzia
     // Čia administratorius sukuria prekę, įkelia nuotraukas ir sistema sugeneruoja slug.
-    // GYNIMO PAAISKINIMAS PRADZIA: naujos prekes issaugojimas
+    // naujos prekes issaugojimas komentaro pradzia
     // Cia issaugoma nauja preke.
     // Duomenys jau buna patikrinti ProductUpsertRequest faile.
-    // GYNIMO PAAISKINIMAS PABAIGA: naujos prekes issaugojimas
+    // naujos prekes issaugojimas komentaro pabaiga
     public function store(ProductUpsertRequest $request)
     {
-        // GYNIMO PAAISKINIMAS PRADZIA: validuoti admin duomenys
+        // validuoti admin duomenys komentaro pradzia
         // Cia paimami tik validuoti formos duomenys.
         // Tai reiskia, kad i DB nepatenka laukai, kuriu neleidziame issaugoti.
-        // GYNIMO PAAISKINIMAS PABAIGA: validuoti admin duomenys
+        // validuoti admin duomenys komentaro pabaiga
         $data = $request->validated();
 
         unset($data['gallery_images'], $data['remove_gallery_images']);
@@ -104,10 +104,10 @@ class ProductAdminController extends Controller
             ->with('success', 'Prekė sukurta.');
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: produkto redagavimo forma
+    // produkto redagavimo forma komentaro pradzia
     // Cia atidaromas esamos prekes redagavimas.
     // Laravel pagal route automatiskai paduoda Product modeli.
-    // GYNIMO PAAISKINIMAS PABAIGA: produkto redagavimo forma
+    // produkto redagavimo forma komentaro pabaiga
     public function edit(Product $product)
     {
         $categories = Category::query()->orderBy('name')->get();
@@ -115,12 +115,12 @@ class ProductAdminController extends Controller
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
-    // KODO PABAIGA: admin prekės sukūrimas
+    // admin prekės sukūrimas komentaro pabaiga
 
-    // GYNIMO PAAISKINIMAS PRADZIA: prekes atnaujinimas
+    // prekes atnaujinimas komentaro pradzia
     // Cia admin pakeicia prekes informacija.
     // Vel naudojamas ProductUpsertRequest, todel ir kurimas ir redagavimas turi ta pacia validacija.
-    // GYNIMO PAAISKINIMAS PABAIGA: prekes atnaujinimas
+    // prekes atnaujinimas komentaro pabaiga
     public function update(ProductUpsertRequest $request, Product $product)
     {
         $data = $request->validated();
@@ -153,10 +153,10 @@ class ProductAdminController extends Controller
             ->with('success', 'Prekė atnaujinta.');
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: prekes trynimas
+    // prekes trynimas komentaro pradzia
     // Cia admin gali istrinti preke.
     // Pries trinant pasalinamos ir su preke susijusios nuotraukos.
-    // GYNIMO PAAISKINIMAS PABAIGA: prekes trynimas
+    // prekes trynimas komentaro pabaiga
     public function destroy(Product $product)
     {
         if ($product->orderItems()->exists()) {
@@ -189,11 +189,11 @@ class ProductAdminController extends Controller
         return ['image', 'image_2', 'image_3'];
     }
 
-    // KODO PRADŽIA: papildomų produkto nuotraukų saugojimas
-    // GYNIMO PAAISKINIMAS PRADZIA: galerijos nuotrauku issaugojimas
+    // papildomų produkto nuotraukų saugojimas komentaro pradzia
+    // galerijos nuotrauku issaugojimas komentaro pradzia
     // Cia issaugomos papildomos prekes nuotraukos.
     // Jos naudojamos prekes puslapyje kaip galerija.
-    // GYNIMO PAAISKINIMAS PABAIGA: galerijos nuotrauku issaugojimas
+    // galerijos nuotrauku issaugojimas komentaro pabaiga
     private function storeGalleryImages(ProductUpsertRequest $request): array
     {
         if (!$request->hasFile('gallery_images')) {
@@ -207,7 +207,7 @@ class ProductAdminController extends Controller
             ->all();
     }
 
-    // KODO PABAIGA: papildomų produkto nuotraukų saugojimas
+    // papildomų produkto nuotraukų saugojimas komentaro pabaiga
 
     private function currentGalleryImages(Product $product): array
     {
@@ -225,10 +225,10 @@ class ProductAdminController extends Controller
             ->all();
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: galerijos nuotrauku salinimas
+    // galerijos nuotrauku salinimas komentaro pradzia
     // Cia admin gali pasalinti pasirinktas galerijos nuotraukas.
     // Is masyvo paliekamos tik tos, kuriu nereikia istrinti.
-    // GYNIMO PAAISKINIMAS PABAIGA: galerijos nuotrauku salinimas
+    // galerijos nuotrauku salinimas komentaro pabaiga
     private function removeGalleryImages(ProductUpsertRequest $request, array $galleryImages): array
     {
         $removeImages = collect($request->input('remove_gallery_images', []))
@@ -272,10 +272,10 @@ class ProductAdminController extends Controller
         }
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: unikalaus slug kurimas
+    // unikalaus slug kurimas komentaro pradzia
     // Slug yra nuorodos dalis, pvz medinis-kubilas.
     // Cia uzdedama apsauga, kad keli produktai neturetu tokio pacio slug.
-    // GYNIMO PAAISKINIMAS PABAIGA: unikalaus slug kurimas
+    // unikalaus slug kurimas komentaro pabaiga
     private function generateUniqueSlug(?string $nameInput, ?int $ignoreProductId = null): string
     {
         $baseSlug = Str::slug(trim((string) $nameInput));

@@ -1,9 +1,9 @@
-{{-- KODO PRADŽIA: slapukų sutikimo langas --}}
+{-- slapukų sutikimo langas komentaro pradzia --}
 {{-- Pirmą kartą atėjus į svetainę rodoma apačios juosta su Priimti / Atmesti / Nustatymai. --}}
-{{-- GYNIMO PAAISKINIMAS PRADZIA: slapuku langas --}}
+{-- slapuku langas komentaro pradzia --}
 {{-- Cia yra slapuku sutikimo UI. --}}
 {{-- Vartotojas gali priimti arba atmesti nebutinus slapukus, o pasirinkimas issaugomas narsykleje. --}}
-{{-- GYNIMO PAAISKINIMAS PABAIGA: slapuku langas --}}
+{-- slapuku langas komentaro pabaiga --}
 <div id="cookieBanner" class="hidden fixed inset-x-3 bottom-3 z-[9999] sm:left-4 sm:right-auto sm:max-w-xl">
     <div class="rounded-2xl border border-black/10 bg-white p-4 shadow-2xl">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -158,10 +158,10 @@
         }
 
         function getConsent() {
-            // GYNIMO PAAISKINIMAS PRADZIA: slapuku pasirinkimo nuskaitymas
+            // slapuku pasirinkimo nuskaitymas komentaro pradzia
             // Cia bandoma paimti vartotojo pasirinkima is cookie arba localStorage.
             // Del to kita karta puslapis prisimena ar vartotojas jau pasirinko slapukus.
-            // GYNIMO PAAISKINIMAS PABAIGA: slapuku pasirinkimo nuskaitymas
+            // slapuku pasirinkimo nuskaitymas komentaro pabaiga
             const saved = getCookie(consentKey) || localStorage.getItem(consentKey);
 
             if (!saved) {
@@ -295,4 +295,4 @@
         });
     });
 </script>
-{{-- KODO PABAIGA: slapukų sutikimo langas --}}
+{-- slapukų sutikimo langas komentaro pabaiga --}

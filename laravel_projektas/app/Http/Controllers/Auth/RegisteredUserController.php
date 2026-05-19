@@ -15,10 +15,10 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    // GYNIMO PAAISKINIMAS PRADZIA: registracijos formos atidarymas
+    // registracijos formos atidarymas komentaro pradzia
     // Cia tiesiog grazinamas registracijos puslapis.
     // Pats vartotojo sukurimas vyksta store metode.
-    // GYNIMO PAAISKINIMAS PABAIGA: registracijos formos atidarymas
+    // registracijos formos atidarymas komentaro pabaiga
     public function create(): View
     {
         return view('auth.register', [
@@ -27,25 +27,25 @@ class RegisteredUserController extends Controller
         ]);
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: vartotojo registravimas
+    // vartotojo registravimas komentaro pradzia
     // Sitas metodas veikia kai vartotojas uzpildo registracijos forma ir spaudzia registruotis.
     // Cia tikrinami duomenys, recaptcha, taisykliu checkbox ir sukuriamas vartotojas.
-    // GYNIMO PAAISKINIMAS PABAIGA: vartotojo registravimas
+    // vartotojo registravimas komentaro pabaiga
     public function store(Request $request, RecaptchaService $recaptcha): RedirectResponse
     {
-        // GYNIMO PAAISKINIMAS PRADZIA: vardo ir email sutvarkymas
+        // vardo ir email sutvarkymas komentaro pradzia
         // Pries validacija vardas apkarpomas nuo nereikalingu tarpu, o email paverciamas mazosiomis raidemis.
         // Taip duomenys i DB patenka tvarkingesni.
-        // GYNIMO PAAISKINIMAS PABAIGA: vardo ir email sutvarkymas
+        // vardo ir email sutvarkymas komentaro pabaiga
         $request->merge([
             'name' => trim((string) $request->input('name')),
             'email' => Str::lower(trim((string) $request->input('email'))),
         ]);
 
-        // GYNIMO PAAISKINIMAS PRADZIA: registracijos validacija
+        // registracijos validacija komentaro pradzia
         // Cia tikrinama ar vardas, email ir slaptazodis atitinka taisykles.
         // Taip pat terms turi buti accepted, kitaip vartotojas negales registruotis.
-        // GYNIMO PAAISKINIMAS PABAIGA: registracijos validacija
+        // registracijos validacija komentaro pabaiga
         $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:255'],
             'email' => ['required', 'string', 'email:rfc', 'max:255', 'unique:users,email'],
@@ -58,10 +58,10 @@ class RegisteredUserController extends Controller
                 'regex:/[^A-Za-z0-9]/',
             ],
             // Jeigu vartotojas nepažymi šio laukelio, registracija nebus leidžiama.
-            // GYNIMO PAAISKINIMAS PRADZIA: taisykliu checkbox backend puseje
+            // taisykliu checkbox backend puseje komentaro pradzia
             // Cia svarbi vieta: vartotojas privalo sutikti su taisyklemis.
             // Net jei kazkas bandytu apeiti frontend, backend vistiek neleis registruotis be accepted.
-            // GYNIMO PAAISKINIMAS PABAIGA: taisykliu checkbox backend puseje
+            // taisykliu checkbox backend puseje komentaro pabaiga
             'terms' => ['accepted'],
         ], [
             'name.required' => 'Įveskite vardą.',
@@ -79,10 +79,10 @@ class RegisteredUserController extends Controller
         ]);
 
         // Prieš sukuriant vartotoją patikrinama reCAPTCHA.
-        // GYNIMO PAAISKINIMAS PRADZIA: recaptcha registracijoje
+        // recaptcha registracijoje komentaro pradzia
         // Cia registracijos tokenas perduodamas i RecaptchaService.
         // Jei Google patikra nepraeina, vartotojas nebus sukurtas.
-        // GYNIMO PAAISKINIMAS PABAIGA: recaptcha registracijoje
+        // recaptcha registracijoje komentaro pabaiga
         $result = $recaptcha->verify(
             $request->input('recaptcha_token'),
             'register'
@@ -96,27 +96,27 @@ class RegisteredUserController extends Controller
                 ->withInput();
         }
 
-        // GYNIMO PAAISKINIMAS PRADZIA: vartotojo sukurimas
+        // vartotojo sukurimas komentaro pradzia
         // Cia sukuriamas naujas vartotojas duomenu bazeje.
         // Slaptazodis neirasomas paprastu tekstu, jis pries tai uzhashinamas.
-        // GYNIMO PAAISKINIMAS PABAIGA: vartotojo sukurimas
+        // vartotojo sukurimas komentaro pabaiga
         $user = User::create([
             'name' => (string) $request->input('name'),
             'email' => (string) $request->input('email'),
             // Slaptažodis į DB niekada nesaugomas paprastu tekstu, čia jis užhashinamas.
-            // GYNIMO PAAISKINIMAS PRADZIA: slaptazodzio hash eilute
+            // slaptazodzio hash eilute komentaro pradzia
             // Cia tikras slaptazodis neirasomas i DB.
             // Hash::make ji uzkoduoja, todel duomenu bazeje saugomas tik hash.
-            // GYNIMO PAAISKINIMAS PABAIGA: slaptazodzio hash eilute
+            // slaptazodzio hash eilute komentaro pabaiga
             'password' => Hash::make((string) $request->input('password')),
         ]);
 
         event(new Registered($user));
 
-        // GYNIMO PAAISKINIMAS PRADZIA: automatinis prisijungimas po registracijos
+        // automatinis prisijungimas po registracijos komentaro pradzia
         // Kai vartotojas sekmingai sukuriamas, jis iskart prijungiamas prie sistemos.
         // Tada nukreipiamas i norima puslapi.
-        // GYNIMO PAAISKINIMAS PABAIGA: automatinis prisijungimas po registracijos
+        // automatinis prisijungimas po registracijos komentaro pabaiga
         Auth::login($user);
         $request->session()->regenerate();
 

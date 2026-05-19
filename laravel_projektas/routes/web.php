@@ -10,13 +10,13 @@ use App\Http\Controllers\Store\PayseraController;
 use App\Http\Controllers\Store\ProductPageController;
 use Illuminate\Support\Facades\Route;
 
-// KODO PRADŽIA: web.php maršrutai
+// web.php maršrutai komentaro pradzia
 // Šitas failas skirtas puslapiams, kuriuos žmogus atsidaro naršyklėje.
 // Čia grąžinami Blade puslapiai: pradžia, prekės, checkout, admin ir kt.
-// GYNIMO PAAISKINIMAS PRADZIA: web routes
+// web routes komentaro pradzia
 // Sitas failas skirtas puslapiams, kuriuos vartotojas atsidaro narsykleje.
 // Pvz pagrindinis puslapis, checkout, susikurk kubila, admin puslapiai ir Paysera grizimai.
-// GYNIMO PAAISKINIMAS PABAIGA: web routes
+// web routes komentaro pabaiga
 Route::get('/', [PageController::class, 'home'])->name('home');
 
 Route::get('/dashboard', [PageController::class, 'dashboard'])
@@ -86,6 +86,6 @@ Route::prefix('admin')
         Route::get('/orders/{id}', [AdminOrderPageController::class, 'show'])->name('orders.show');
     });
 
-// KODO PABAIGA: web.php maršrutai
+// web.php maršrutai komentaro pabaiga
 
 require __DIR__ . '/auth.php';

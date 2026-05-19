@@ -1,0 +1,212 @@
+KUBILIUKS.LT FAILU ZEMELAPIS
+
+Sitas failas skirtas greitai prisiminti kur kas yra kode.
+Per gynima nereikia moketi visko mintinai. Svarbiausia zinoti koki faila atidaryti ir ka jis daro.
+
+============================================================
+1 BLOKAS - SUSIKURK KUBILA
+============================================================
+
+laravel_projektas/resources/views/build_tub.blade.php
+- cia yra visas kubilo konfiguratoriaus puslapis
+- cia yra dydzio, vidaus spalvos ir medienos pasirinkimai
+- cia keiciasi kaina ir kubilo nuotrauka
+- cia JavaScript surenka pasirinkimus ir siuncia i krepseli
+
+laravel_projektas/routes/api.php
+- cia yra API kelias custom kubilui
+- sitas failas parodo kur nueina uzklausa kai spaudziama deti i krepseli
+- ieskoti: custom-tub
+
+laravel_projektas/app/Http/Controllers/Api/V1/CartController.php
+- cia serveris priima custom kubilo pasirinkimus
+- cia tikrinama ar dydis, vidus ir mediena yra is leistinu variantu
+- cia kaina perskaiciuojama serveryje, ne tik narsykleje
+- ieskoti: addCustomTub
+
+laravel_projektas/app/Services/CartService.php
+- cia custom kubilas realiai idedamas i krepseli
+- cia issaugomas tipas custom_tub, pavadinimas, kaina, kiekis ir pasirinkimai
+- ieskoti: addCustomTub
+
+============================================================
+2 BLOKAS - KREPSELIS
+============================================================
+
+laravel_projektas/app/Http/Controllers/Api/V1/CartController.php
+- cia priimami krepselio veiksmai
+- prideti preke, keisti kieki, salinti preke, ideti custom kubila
+
+laravel_projektas/app/Services/CartService.php
+- cia pagrindine krepselio logika
+- service dirba su sesijos krepseliu ir paruosia duomenis rodymui
+
+laravel_projektas/routes/api.php
+- cia yra krepselio API keliai
+- ieskoti: cart
+
+============================================================
+3 BLOKAS - CHECKOUT IR UZSAKYMAS
+============================================================
+
+laravel_projektas/resources/views/checkout.blade.php
+- cia yra checkout forma
+- vartotojas iveda varda, pavarde, telefona, adresa, pasto koda ir pasirenka mokejima
+- cia yra JavaScript kuris pateikia uzsakyma
+
+laravel_projektas/app/Http/Controllers/Api/V1/OrderController.php
+- cia priimami checkout duomenys
+- cia tikrinama ar duomenys tvarkingi
+- tada duomenys perduodami i OrderService
+
+laravel_projektas/app/Services/OrderService.php
+- cia sukuriamas uzsakymas duomenu bazeje
+- cia sukuriamos uzsakymo prekes
+- cia skaiciuojama suma ir paruosiami mokejimo duomenys
+
+laravel_projektas/routes/api.php
+- cia yra uzsakymo API kelias
+- ieskoti: orders
+
+============================================================
+4 BLOKAS - PAYSERA
+============================================================
+
+laravel_projektas/app/Http/Controllers/Store/PayseraController.php
+- cia yra nukreipimas i Paysera
+- cia yra callback po mokejimo
+- cia atnaujinamas uzsakymo ir mokejimo statusas
+- ieskoti: callback
+
+laravel_projektas/app/Services/PayseraService.php
+- cia paruosiami Paysera duomenys
+- cia tikrinamas Paysera atsakymas
+- service atskirtas tam kad controlleris nebutu per daug apkrautas
+
+laravel_projektas/routes/web.php
+- cia yra Paysera web keliai
+- ieskoti: paysera
+
+============================================================
+5 BLOKAS - PREKES IR FILTRAI
+============================================================
+
+laravel_projektas/app/Http/Controllers/Api/V1/ProductController.php
+- cia controlleris priima prekiu paieska ir filtrus
+- jis perduoda darba i ProductRepository
+
+laravel_projektas/app/Repositories/ProductRepository.php
+- cia formuojama uzklausa i duomenu baze
+- cia atrenkamos prekes pagal kategorija, kaina, paieska ir kitus filtrus
+
+laravel_projektas/routes/api.php
+- cia yra API kelias prekiu gavimui
+- ieskoti: products
+
+============================================================
+6 BLOKAS - ADMIN PREKES
+============================================================
+
+laravel_projektas/app/Http/Controllers/Admin/ProductAdminController.php
+- cia admin kuria, redaguoja ir trina prekes
+- cia tvarkomos prekiu nuotraukos, kaina, likutis ir aprasymas
+
+laravel_projektas/app/Http/Requests/Admin/ProductUpsertRequest.php
+- cia yra prekes validacija
+- sitas failas neleidzia irasyti blogu duomenu i duomenu baze
+
+laravel_projektas/resources/views/admin/products/partials/form.blade.php
+- cia yra admin prekes forma
+- per sia forma admin iveda arba redaguoja prekes duomenis
+
+laravel_projektas/routes/web.php
+- cia admin prekiu puslapiu keliai
+- ieskoti: admin products
+
+============================================================
+7 BLOKAS - ADMIN UZSAKYMAI
+============================================================
+
+laravel_projektas/app/Http/Controllers/Api/V1/Admin/AdminOrderController.php
+- cia admin keicia uzsakymo statusus
+- cia galima patvirtinti, vykdyti arba atsaukti uzsakyma
+
+laravel_projektas/resources/views/admin/orders/index.blade.php
+- cia admin mato uzsakymu sarasa
+
+laravel_projektas/resources/views/admin/orders/show.blade.php
+- cia admin mato viena konkretu uzsakyma
+
+laravel_projektas/routes/api.php
+- cia yra statusu keitimo API keliai
+- ieskoti: admin/orders
+
+============================================================
+8 BLOKAS - REGISTRACIJA IR SAUGUMAS
+============================================================
+
+laravel_projektas/resources/views/auth/register.blade.php
+- cia yra registracijos forma
+- cia yra taisykliu checkbox
+- vartotojas negali registruotis kol nesutinka su taisyklem
+
+laravel_projektas/app/Http/Controllers/Auth/RegisteredUserController.php
+- cia serverio puseje tikrinami registracijos duomenys
+- cia tikrinamas terms checkbox
+- cia slaptazodis issaugomas su Hash, ne paprastu tekstu
+
+laravel_projektas/app/Services/RecaptchaService.php
+- cia tikrinamas reCAPTCHA tokenas
+- tai apsauga nuo botu ir automatiniu uzklausu
+
+laravel_projektas/resources/views/partials/cookie-consent.blade.php
+- cia yra slapuku sutikimo langas
+- vartotojo pasirinkimas issaugomas narsykleje
+
+============================================================
+9 BLOKAS - BENDRAS LAYOUT
+============================================================
+
+laravel_projektas/resources/views/layouts/app.blade.php
+- cia pagrindinis svetaines karkasas
+- cia prijungiamas headeris, turinys, footeris, scriptai ir slapukai
+
+laravel_projektas/resources/views/partials/store_header.blade.php
+- cia svetaines virsus ir navigacija
+
+============================================================
+10 BLOKAS - HOSTINGER
+============================================================
+
+public_html/index.php
+- cia Hostinger pradinis failas
+- jis uzkrauna Laravel projekta is laravel_projektas folderio
+
+public_html/.htaccess
+- cia nukreipimo taisykles
+- jos leidzia Laravel routeams veikti per Hostinger
+
+public_html/paysera_f8ba2137fba8c6381a5a8d592842cace.html
+- cia Paysera domeno patvirtinimo failas
+- ji reiketu rodyti tik jei klausia apie Paysera domain verification
+
+============================================================
+GREITA ATMINTINE
+============================================================
+
+views = ka vartotojas mato
+routes = kur eina puslapiai ir uzklausos
+controller = priima veiksma
+service = daro pagrindini darba
+repository = paima duomenis is DB
+request = validacija
+model = DB lentele ir rysiai
+public_html = Hostinger viesoji dalis
+
+Pirma mokytis:
+1. Susikurk kubila
+2. Krepselis
+3. Checkout
+4. Paysera
+5. Admin
+6. Saugumas

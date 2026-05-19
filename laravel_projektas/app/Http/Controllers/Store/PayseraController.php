@@ -15,10 +15,10 @@ class PayseraController extends Controller
         private readonly PayseraService $paysera
     ) {}
 
-    // GYNIMO PAAISKINIMAS PRADZIA: sekmingo Paysera grizimo puslapis
+    // sekmingo Paysera grizimo puslapis komentaro pradzia
     // Cia vartotojas patenka kai Paysera nukreipia ji atgal po sekmingo mokejimo.
     // Tai daugiau vartotojo grizimo vieta, o realus statuso patvirtinimas vyksta callback metode.
-    // GYNIMO PAAISKINIMAS PABAIGA: sekmingo Paysera grizimo puslapis
+    // sekmingo Paysera grizimo puslapis komentaro pabaiga
     public function accept(Order $order)
     {
         return redirect()
@@ -26,10 +26,10 @@ class PayseraController extends Controller
             ->with('success', 'Mokėjimas inicijuotas. Laukiame Paysera patvirtinimo.');
     }
 
-    // GYNIMO PAAISKINIMAS PRADZIA: atsaukto Paysera mokejimo puslapis
+    // atsaukto Paysera mokejimo puslapis komentaro pradzia
     // Cia vartotojas patenka jei Paysera mokejima atsaukia arba neuzbaigia.
     // Uzsakymas del to iskart netampa apmoketas.
-    // GYNIMO PAAISKINIMAS PABAIGA: atsaukto Paysera mokejimo puslapis
+    // atsaukto Paysera mokejimo puslapis komentaro pabaiga
     public function cancel(Order $order)
     {
         if ($order->payment && $order->payment->status !== 'paid') {
@@ -47,20 +47,20 @@ class PayseraController extends Controller
             ->with('error', 'Mokėjimas buvo nutrauktas. Galėsite bandyti dar kartą.');
     }
 
-    // KODO PRADŽIA: Paysera callback
+    // Paysera callback komentaro pradzia
     // Šitą metodą kviečia ne klientas, o Paysera po mokėjimo.
-    // GYNIMO PAAISKINIMAS PRADZIA: Paysera callback
+    // Paysera callback komentaro pradzia
     // Cia svarbiausia Paysera vieta.
     // Paysera serveris atsiuncia atsakyma, o sistema patikrina ar mokejimas tikras ir ar priklauso sitam uzsakymui.
-    // GYNIMO PAAISKINIMAS PABAIGA: Paysera callback
+    // Paysera callback komentaro pabaiga
     public function callback(Request $request, Order $order)
     {
         try {
             // Pirma patikrinamas Paysera parašas, kad callback būtų tikras.
-            // GYNIMO PAAISKINIMAS PRADZIA: callback validavimas
+            // callback validavimas komentaro pradzia
             // Cia PayseraService patikrina Paysera duomenis ir parasa.
             // Jei duomenys neteisingi, zemiau bus catch ir callback nepatvirtins uzsakymo.
-            // GYNIMO PAAISKINIMAS PABAIGA: callback validavimas
+            // callback validavimas komentaro pabaiga
             $response = $this->paysera->validateCallback($request->all());
 
             if ((string) ($response['orderid'] ?? '') !== (string) $order->id) {
@@ -72,16 +72,16 @@ class PayseraController extends Controller
             }
 
             // Papildomai patikrinama, ar apmokėta suma ir valiuta sutampa su užsakymu.
-            // GYNIMO PAAISKINIMAS PRADZIA: ar mokejimas sutampa su orderiu
+            // ar mokejimas sutampa su orderiu komentaro pradzia
             // Cia tikrinama ar Paysera atsakymas priklauso butent sitam uzsakymui.
             // Taip apsaugoma, kad vieno uzsakymo mokejimas nebutu priskirtas kitam.
-            // GYNIMO PAAISKINIMAS PABAIGA: ar mokejimas sutampa su orderiu
+            // ar mokejimas sutampa su orderiu komentaro pabaiga
             $this->paysera->assertPaymentMatches($order, $response);
 
-            // GYNIMO PAAISKINIMAS PRADZIA: statusu atnaujinimas transakcijoje
+            // statusu atnaujinimas transakcijoje komentaro pradzia
             // Cia po sekmingo Paysera patvirtinimo atnaujinamas payment ir order statusas.
             // Transakcija uztikrina, kad abu irasai butu pakeisti kartu.
-            // GYNIMO PAAISKINIMAS PABAIGA: statusu atnaujinimas transakcijoje
+            // statusu atnaujinimas transakcijoje komentaro pabaiga
             DB::transaction(function () use ($order, $response) {
                 $payment = $order->payment;
 
@@ -123,5 +123,5 @@ class PayseraController extends Controller
             return response('ERROR', 400)->header('Content-Type', 'text/plain');
         }
     }
-    // KODO PABAIGA: Paysera callback
+    // Paysera callback komentaro pabaiga
 }

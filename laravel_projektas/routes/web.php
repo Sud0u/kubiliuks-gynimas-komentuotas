@@ -25,7 +25,7 @@ Route::get('/prekes/{product:slug}', [ProductPageController::class, 'show'])
     ->name('store.products.show');
 
 Route::get('/kontaktai', [PageController::class, 'contact'])->name('kontaktai');
-
+ // vartotojas atsidaro pagrindinį puslapį arba ‘Susikurk kubilą’ puslapį, route yra aprašytas web.php faile    
 Route::get('/susikurk-savo-kubila', [PageController::class, 'buildTub'])
     ->name('build.tub');
 

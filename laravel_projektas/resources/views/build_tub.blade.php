@@ -600,11 +600,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         builderMsg.textContent = text;
     }
-
+  
     // KODO PRADŽIA: nuotraukos atnaujinimas ekrane
     // Kai žmogus pakeičia vidaus arba medienos spalvą, ši funkcija atnaujina kubilo nuotrauką.
     // Čia yra viena svarbiausių builderio vietų, nes vartotojas iš karto mato savo pasirinkimą.
-    function updatePreview() {
+    //----------- Šita funkcija parenka, kokią kubilo nuotrauką rodyti.
+    function updatePreview() { 
+        // Čia pasiimami dabartiniai vartotojo pasirinkimai. selectedInside reiškia pasirinktą vidaus spalvą, o selectedWood reiškia pasirinktą medienos spalvą.
         const selectedInside = getSelectedInside();
         const selectedWood = getSelectedWood();
 

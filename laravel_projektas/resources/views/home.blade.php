@@ -318,7 +318,7 @@
                                 <img src="{{ $heroPics->get(1) ? $imgUrl($heroPics->get(1)->image ?? null) : asset('images/background.jpg') }}" alt="Kubiliuks gaminys">
                             </a>
 
-                            <a href="{{ route('kontaktai') }}" class="kub-hero-card kub-hero-card-3">
+                            <a href="{{ route('prekes') }}" class="kub-hero-card kub-hero-card-3">
                                 <img src="{{ $heroPics->get(2) ? $imgUrl($heroPics->get(2)->image ?? null) : asset('images/background.jpg') }}" alt="Individualus užsakymas">
                             </a>
                         </div>

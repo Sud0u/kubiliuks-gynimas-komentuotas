@@ -29,6 +29,7 @@ class AdminOrderController extends Controller
         }
 
         $query = Order::query()
+            ->with(['payment:id,order_id,provider,status,transaction_id,amount,paid_at,meta'])
             ->select([
                 'id',
                 'customer_name',
@@ -108,7 +109,7 @@ class AdminOrderController extends Controller
         $order = Order::query()
             ->with([
                 'items.product:id,name,slug,price,image',
-                'payment:id,order_id,provider,status,transaction_id,amount,paid_at',
+                'payment:id,order_id,provider,status,transaction_id,amount,paid_at,meta',
             ])
             ->findOrFail($id);
 
@@ -149,6 +150,7 @@ class AdminOrderController extends Controller
                         'status' => $order->payment?->status,
                         'transaction_id' => $order->payment?->transaction_id,
                         'paid_at' => optional($order->payment?->paid_at)->toISOString(),
+                        'meta' => $order->payment?->meta,
                     ],
                 ],
                 'items' => $items,

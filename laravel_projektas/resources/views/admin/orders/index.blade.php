@@ -203,14 +203,16 @@
             const payment = order.payment || null;
 
             if (!payment || !payment.status) {
-                return 'Laukia suderinimo';
+                return 'Mokėjimas nenurodytas';
             }
 
+            const isPaysera = payment.provider === 'paysera' || payment.meta?.requested_method === 'paysera';
+
             const statusMap = {
-                unpaid: 'Laukia suderinimo',
+                unpaid: isPaysera ? 'Laukia Paysera apmokėjimo' : 'Laukia suderinimo',
                 paid: 'Apmokėta',
                 failed: 'Nepavyko',
-                cancelled: 'Atšaukta',
+                cancelled: 'Mokėjimas nutrauktas',
                 refunded: 'Grąžinta'
             };
 

@@ -179,10 +179,14 @@
             }
         }
 
-        function paymentLabel(status) {
+        function paymentLabel(status, provider = null, method = null) {
+            const isPaysera = provider === 'paysera' || method === 'paysera';
+
             switch (status) {
                 case 'paid': return 'Apmokėta';
-                case 'unpaid': return 'Laukia suderinimo';
+                case 'unpaid': return isPaysera ? 'Laukia Paysera apmokėjimo' : 'Laukia suderinimo';
+                case 'cancelled': return 'Mokėjimas nutrauktas';
+                case 'failed': return 'Nepavyko';
                 case 'refunded': return 'Grąžinta';
                 default: return status ?? '—';
             }
@@ -230,7 +234,11 @@
 
                 document.getElementById('summary-id').textContent = `#${order.id}`;
                 document.getElementById('summary-total').textContent = formatMoney(order.total_amount);
-                document.getElementById('payment-status').textContent = paymentLabel(order.payment?.status);
+                document.getElementById('payment-status').textContent = paymentLabel(
+                    order.payment?.status,
+                    order.payment?.provider,
+                    order.payment?.meta?.requested_method
+                );
                 document.getElementById('summary-status').textContent = statusLabel(order.status);
 
                 const badge = document.getElementById('order-status-badge');

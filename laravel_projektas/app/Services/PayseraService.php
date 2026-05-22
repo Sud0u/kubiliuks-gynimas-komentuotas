@@ -39,12 +39,9 @@ class PayseraService
         return (string) config('services.paysera.sign_password');
     }
 
-    // Paysera redirect URL sukūrimas komentaro pradzia
-    // Čia iš užsakymo duomenų suformuojama nuoroda į Paysera mokėjimo langą.
-    // Paysera mokejimo nuorodos kurimas komentaro pradzia
+   
     // Cia is uzsakymo duomenu paruosiama Paysera mokejimo nuoroda.
     // I ja vartotojas nukreipiamas kai pasirenka apmoketi per Paysera.
-    // Paysera mokejimo nuorodos kurimas komentaro pabaiga
     public function buildCheckoutUrl(Order $order): string
     {
         if (!$this->isConfigured()) {

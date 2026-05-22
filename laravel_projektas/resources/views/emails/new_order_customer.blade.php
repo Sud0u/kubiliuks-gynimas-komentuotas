@@ -1,5 +1,16 @@
 @php
     $snapshot = collect($order->payment?->meta['cart_snapshot'] ?? [])->values();
+    $requestedMethod = $order->payment?->meta['requested_method'] ?? null;
+    $isPayseraPayment = ($order->payment?->provider === 'paysera') || ($requestedMethod === 'paysera');
+    $paymentStatus = $order->payment?->status ?? 'unpaid';
+
+    $paymentLabel = match($paymentStatus) {
+        'paid' => 'Apmokėta',
+        'cancelled' => 'Mokėjimas nutrauktas',
+        'failed' => 'Nepavyko',
+        'refunded' => 'Grąžinimas tvarkomas',
+        default => $isPayseraPayment ? 'Laukia Paysera apmokėjimo' : 'Laukia suderinimo',
+    };
 @endphp
 
 <!DOCTYPE html>
@@ -27,9 +38,19 @@
                     Gavome jūsų užsakymą <strong>#{{ $order->id }}</strong>.
                 </p>
 
-                <p style="margin:0 0 22px; font-size:16px; line-height:1.6;">
-                    Su jumis susisieksime dėl apmokėjimo, pristatymo ir kitų detalių.
-                </p>
+                @if($isPayseraPayment)
+                    <p style="margin:0 0 14px; font-size:16px; line-height:1.6;">
+                        Užsakymas sukurtas, bet jis bus laikomas apmokėtu tik tada, kai gausime Paysera patvirtinimą.
+                    </p>
+
+                    <p style="margin:0 0 22px; font-size:16px; line-height:1.6;">
+                        Jei Paysera mokėjimo langą uždarėte arba mokėjimo neužbaigėte, apmokėjimas lieka neatliktas.
+                    </p>
+                @else
+                    <p style="margin:0 0 22px; font-size:16px; line-height:1.6;">
+                        Su jumis susisieksime dėl apmokėjimo, pristatymo ir kitų detalių.
+                    </p>
+                @endif
 
                 <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse; margin:0 0 24px;">
                     <tr>
@@ -42,6 +63,12 @@
                         <td style="padding:14px 16px; border:1px solid #e7e5e4; border-top:none; font-size:14px;">
                             <div style="color:#78716c; margin-bottom:6px;">Bendra suma</div>
                             <div style="font-weight:700; color:#111827;">{{ number_format($order->total_amount, 2, ',', ' ') }} €</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:14px 16px; border:1px solid #e7e5e4; border-top:none; font-size:14px;">
+                            <div style="color:#78716c; margin-bottom:6px;">Apmokėjimo būsena</div>
+                            <div style="font-weight:700; color:#111827;">{{ $paymentLabel }}</div>
                         </td>
                     </tr>
                     <tr>

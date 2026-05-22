@@ -11,9 +11,7 @@ use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\Admin\AdminProductController;
 use App\Http\Controllers\Api\V1\Admin\AdminOrderController;
 
-// api.php maršrutai komentaro pradzia
-// Šitas failas skirtas veiksmams be pilno puslapio perkrovimo.
-// Per šiuos maršrutus veikia krepšelis, checkout, admin užsakymai ir produktų API.
+
 // API routes komentaro pradzia
 // Sitas failas skirtas veiksmams kurie vyksta per JavaScript.
 // Pvz krepselio atnaujinimas, prekes idejimas, custom kubilas arba uzsakymo pateikimas.
@@ -48,6 +46,8 @@ Route::prefix('v1')->group(function () {
             // Sitas route priima JavaScript uzklausa is build_tub.blade.php.
             // Kai vartotojas spaudzia ideti individualu kubila i krepseli, uzklausa ateina cia.
             // custom kubilo API kelias komentaro pabaiga
+
+            //// cia matosi kur nueina ta custom kubilo uzklausa. kai frontend siuncia i /api/v1/cart/custom-tub nukreipia ja i CartController addCustomTub metodu.
             Route::post('/cart/custom-tub', [CartController::class, 'addCustomTub']);
             Route::patch('/cart/items/{id}', [CartController::class, 'updateItem']);
             Route::delete('/cart/items/{id}', [CartController::class, 'removeItem']);

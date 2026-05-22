@@ -21,9 +21,17 @@ class PayseraController extends Controller
     // sekmingo Paysera grizimo puslapis komentaro pabaiga
     public function accept(Order $order)
     {
+        $order->load('payment');
+
+        if ($order->payment?->status === 'paid') {
+            return redirect()
+                ->route('orders.show', $order->id)
+                ->with('success', 'Mokėjimas gautas. Užsakymas pažymėtas kaip apmokėtas.');
+        }
+
         return redirect()
             ->route('orders.show', $order->id)
-            ->with('success', 'Mokėjimas inicijuotas. Laukiame Paysera patvirtinimo.');
+            ->with('success', 'Grįžote iš Paysera. Jei mokėjimo neužbaigėte, užsakymas lieka neapmokėtas.');
     }
 
     // atsaukto Paysera mokejimo puslapis komentaro pradzia
@@ -36,6 +44,8 @@ class PayseraController extends Controller
             $meta = $order->payment->meta ?? [];
             $meta['cancelled_by_user_at'] = now()->toISOString();
 
+            $meta['note'] = 'Paysera mokėjimas nutrauktas vartotojo pusėje. Užsakymas nėra apmokėtas.';
+
             $order->payment->update([
                 'status' => 'cancelled',
                 'meta' => $meta,
@@ -44,29 +54,25 @@ class PayseraController extends Controller
 
         return redirect()
             ->route('orders.show', $order->id)
-            ->with('error', 'Mokėjimas buvo nutrauktas. Galėsite bandyti dar kartą.');
+            ->with('error', 'Mokėjimas buvo nutrauktas. Užsakymas nėra apmokėtas.');
     }
 
     // Paysera callback komentaro pradzia
     // Šitą metodą kviečia ne klientas, o Paysera po mokėjimo.
     // Paysera callback komentaro pradzia
     // Cia svarbiausia Paysera vieta.
-    // Paysera serveris atsiuncia atsakyma, o sistema patikrina ar mokejimas tikras ir ar priklauso sitam uzsakymui.
-    // Paysera callback komentaro pabaiga
+    // Čia prasideda Paysera callback metodas. Šitą metodą kviečia ne vartotojas, o Paysera serveris po mokėjimo.
+    //  Čia sistema gauna Paysera atsakymą ir tikrina, ar mokėjimas tikras.
     public function callback(Request $request, Order $order)
     {
         try {
-            // Pirma patikrinamas Paysera parašas, kad callback būtų tikras.
-            // callback validavimas komentaro pradzia
-            // Cia PayseraService patikrina Paysera duomenis ir parasa.
-            // Jei duomenys neteisingi, zemiau bus catch ir callback nepatvirtins uzsakymo.
-            // callback validavimas komentaro pabaiga
+            //PayseraService patikrina Paysera atsiųstus duomenis ir parašą. Jeigu callback duomenys netikri arba pakeisti, sistema jo nepriima.
             $response = $this->paysera->validateCallback($request->all());
 
             if ((string) ($response['orderid'] ?? '') !== (string) $order->id) {
                 throw new \RuntimeException('Nesutampa užsakymo numeris.');
             }
-
+        // sita eilute tikrina duomenis Jeigu statusas netinkamas, užsakymas nebus pažymėtas kaip apmokėtas.
             if (!in_array((string) ($response['status'] ?? ''), ['1', '3'], true)) {
                 throw new \RuntimeException('Mokėjimas nebuvo sėkmingas.');
             }

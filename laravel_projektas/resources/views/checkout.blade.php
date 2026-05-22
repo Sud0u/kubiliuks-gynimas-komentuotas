@@ -102,6 +102,9 @@
 {{-- Cia prasideda forma, kurios duomenys veliau issiunciami i API. --}}
 {{-- Backend puseje OrderController dar karta patikrina visus laukus. --}}
 {-- checkout forma komentaro pabaiga --}
+ {{-- checkout formos pradziaVartotojas čia įveda pristatymo duomenis ir pasirenka mokėjimo būdą. 
+ Forma nėra siunčiama paprastu puslapio perkrovimu,
+  nes apačioje JavaScript ją pagauna ir išsiunčia per API. --}}
 <form id="checkoutForm" class="grid gap-4 md:grid-cols-2" novalidate>
                             <input
                                 type="text"
@@ -111,7 +114,7 @@
                                 autocomplete="off"
                                 class="hidden"
                             >
-
+                                                    {-- pasirenkamas payment metodas --}
                             <input type="hidden" name="payment_method" id="payment_method" value="cash_on_delivery">
 
                             <div class="md:col-span-2">
@@ -764,7 +767,7 @@ async function api(url, method = 'GET', body = null) {
     updatePaymentSummary();
     loadSummary();
 
-    // checkout formos siuntimas komentaro pradzia
+    // checkout formos uzpildymas siunciamas duomenys siunciami per api.
     checkoutForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
 
@@ -776,7 +779,8 @@ async function api(url, method = 'GET', body = null) {
         submitBtn.disabled = true;
         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
         showMsg('Vykdomas užsakymo pateikimas...', true);
-
+        
+                            // surenkami uzsakovo duomenys
         const payload = {
             website: checkoutForm.website.value.trim(),
             customer_name: checkoutForm.customer_name.value.trim(),

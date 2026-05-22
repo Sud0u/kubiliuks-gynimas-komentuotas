@@ -32,10 +32,10 @@
     ];
 
     $paymentMap = [
-        'unpaid' => 'Laukia suderinimo',
+        'unpaid' => 'Laukia apmokėjimo / suderinimo',
         'paid' => 'Apmokėta',
         'failed' => 'Nepavyko',
-        'cancelled' => 'Atšaukta',
+        'cancelled' => 'Mokėjimas nutrauktas',
         'refunded' => 'Grąžinimas tvarkomas',
     ];
 
@@ -47,7 +47,25 @@
     ];
 
     $paymentStatus = $order->payment?->status ?? 'unpaid';
+    $requestedMethod = $order->payment?->meta['requested_method'] ?? null;
+    $isPayseraPayment = ($order->payment?->provider === 'paysera') || ($requestedMethod === 'paysera');
     $paymentLabel = $paymentMap[$paymentStatus] ?? ucfirst($paymentStatus);
+
+    if ($isPayseraPayment && $paymentStatus === 'unpaid') {
+        $paymentLabel = 'Laukia Paysera apmokėjimo';
+    }
+
+    if ($isPayseraPayment && $paymentStatus === 'cancelled') {
+        $paymentLabel = 'Paysera mokėjimas nutrauktas';
+    }
+
+    if ($isPayseraPayment && $order->status === 'pending' && $paymentStatus === 'unpaid') {
+        $currentStatus['message'] = 'Užsakymas sukurtas, bet Paysera apmokėjimas dar nepatvirtintas. Jei mokėjimo neužbaigėte, užsakymas lieka neapmokėtas.';
+    }
+
+    if ($isPayseraPayment && $paymentStatus === 'cancelled') {
+        $currentStatus['message'] = 'Paysera mokėjimas buvo nutrauktas. Šis užsakymas nėra apmokėtas.';
+    }
 
     $methodMap = [
         'manual' => 'Rankinis suderinimas',

@@ -71,19 +71,22 @@ class CartService
         // krepselio issaugojimas komentaro pabaiga
         Session::put($this->sessionKey, $cart);
     }
-
+   /////////// CartService yra ta vieta, kur jau patikrintas individualus kubilas realiai įdedamas į krepšelį.
     // individualaus kubilo saugojimas sesijos krepšelyje komentaro pradzia
-    // Čia suformuojamas specialus krepšelio įrašas, kuris nėra paprasta prekė iš katalogo.
+
+
+    // cia prasideda service dalis. i sita funkcija ateina jau patikrinti custom kubilo duomenys is CartController. 
+    // controlleris patikrino pasirinkimus ir kaina, o cia jau kubilas dedamas i krepseli
     public function addCustomTub(array $config, int $qty = 1): string
     {
         if ($qty < 1) {
             $qty = 1;
         }
 
-        // custom kubilo pasirinkimu paemimas komentaro pradzia
-        // Cia is config masyvo paimami individualaus kubilo pasirinkimai.
-        // Jei kazkokios reiksmes nera, naudojamas saugus numatytas variantas.
-        // custom kubilo pasirinkimu paemimas komentaro pabaiga
+       // cia is perduoto config masyvo paimami custom kubilo pasirinkimai. 
+        //key - sistemai o label - vartotojui 
+        // parodyti dalis yra technine reiksme, pvz melyna, 
+        // o label dalis yra grazus tekstas, kuris rodomas vartotojui, pvz Melyna arba 200 cm
         $sizeKey = (string) ($config['size_key'] ?? '180');
         $insideKey = (string) ($config['inside_key'] ?? 'balta');
         $woodKey = (string) ($config['wood_key'] ?? 'base-ruda');
@@ -138,12 +141,16 @@ class CartService
             // Cia sukuriamas naujas individualaus kubilo irasas krepselyje.
             // Type yra custom_tub, todel veliau sistema zino kad tai ne paprasta preke.
             // naujas custom kubilo irasas komentaro pabaiga
+
+///
+
             $cart[$key] = [
                 'id' => null,
                 'cart_key' => $key,
                 'type' => 'custom_tub',
-                'slug' => 'susikurk-savo-kubila',
+                'slug' => 'susikurk-savo-kubila', // ka mato https nuorodoje kitaip tariant pritaikytas internetiniam adresui
                 'name' => 'Individualus kubilas',
+                // Čia sujungiami pasirinkimai, kad krepšelyje matytųsi dydis, vidaus spalva ir mediena.
                 'subtitle' => $sizeLabel . ' · ' . $insideLabel . ' · ' . $woodLabel,
                 'price' => $unitPrice,
                 'image' => $image,
@@ -160,7 +167,11 @@ class CartService
                 ],
             ];
         }
-
+     // Čia atnaujintas krepšelis išsaugomas į session. Tai reiškia, kad krepšelis laikomas vartotojo sesijoje iki checkout
+     
+     // CartService faile jau vyksta pats įdėjimas į krepšelį. Controlleris prieš tai patikrino duomenis ir perskaičiavo kainą,
+     //  o čia sukuriamas krepšelio įrašas. Individualus kubilas gauna tipą custom_tub, prie jo pridedamas pavadinimas, pasirinkimai, 
+     // kaina, nuotrauka ir kiekis. Tada visas krepšelis išsaugomas į session
         Session::put($this->sessionKey, $cart);
 
         return $key;

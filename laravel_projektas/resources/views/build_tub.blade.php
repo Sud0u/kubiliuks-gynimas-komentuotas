@@ -788,9 +788,6 @@ document.addEventListener('DOMContentLoaded', function () {
         updateSummary();
     }
 
-    // Bendra funkcija API užklausoms.
-    // Ji prideda CSRF tokeną, kad Laravel priimtų saugią POST užklausą.
-    // Ši funkcija siunčia užklausas į API, pvz. kai dedame individualų kubilą į krepšelį.
     // bendra API funkcija komentaro pradzia
     // Cia yra pagalbine funkcija, kuri siuncia uzklausas i Laravel API.
     // Ji naudojama kai reikia ideti custom kubila i krepseli be pilno puslapio perkrovimo.
@@ -833,17 +830,13 @@ document.addEventListener('DOMContentLoaded', function () {
         return data;
     }
 
-    // individualaus kubilo įdėjimas į krepšelį komentaro pradzia
-    // Čia iš pasirinktų radio mygtukų paimamas dydis, vidaus spalva ir medienos spalva.
-    // custom kubilo idejimas i krepseli komentaro pradzia
-    // Sita funkcija veikia kai vartotojas spaudzia mygtuka ideti i krepseli.
-    // Ji paima pasirinkta dydi, vidaus spalva ir mediena, tada issiuncia i backend.
-    // custom kubilo idejimas i krepseli komentaro pabaiga
+   
+   //// ////// cia funkcijos pradzia, ji atsakinga uz custom kubilo idejima i krepseli.
     async function addIndividualTubToCart() {
         const selectedSize = getSelectedSize();
         const selectedInside = getSelectedInside();
         const selectedWood = getSelectedWood();
-
+// sita vieta patikrina ar vartotojas pasiriko visas kubilo dalis jeigu kazko truksta yra metama klaida. 
         if (!selectedSize || !selectedInside || !selectedWood) {
             showBuilderMsg('Pasirinkite visas kubilo parinktis.', false);
             return;
@@ -854,19 +847,16 @@ document.addEventListener('DOMContentLoaded', function () {
         addButton.textContent = 'Dedama...';
 
         try {
-            // Čia pasirinktas individualus kubilas siunčiamas į serverį.
-            // Backend pusėje šitą užklausą priima CartController::addCustomTub().
-            // Į serverį perduodamas dydis, vidus, mediena ir kiekis.
-            // siunciami pasirinkimai i serveri komentaro pradzia
-            // Cia pasirinktus duomenis issiunciame i API adresa /api/v1/cart/custom-tub.
-            // Siunciami ne tekstai bet raktai: size_key, inside_key, wood_key ir kiekis.
-            // Backend puseje tie raktai dar karta patikrinami ir pagal juos perskaiciuojama kaina.
-            // siunciami pasirinkimai i serveri komentaro pabaiga
-            await api('/api/v1/cart/custom-tub', 'POST', {
+           // pasirinktas individualus kubilas siunčiamas į backend. 
+           // Šita eilutė siunčia POST užklausą į /api/v1/cart/custom-tub
+            await api('/api/v1/cart/custom-tub', 'POST', { // ne failas o  API adresas į kurį JavaScript siuncia duomenis , 
+          //  JavaScript siunčia POST užklausą į API adresą
                 size_key: selectedSize.value,
                 inside_key: selectedInside.value,
                 wood_key: selectedWood.value,
                 qty: 1,
+                // „cia i serveri perduodami konkretus raktai: dydzio raktas, vidaus spalvos raktas
+                //medienos raktas ir kiekis backend veliau pagal situos raktus patikrina ar pasirinkimai leistini ir perskaiciuoja kaina
             });
 
             if (window.refreshCartBadge) {
@@ -890,10 +880,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // vartotojo paspaudimų / pasirinkimų stebėjimas komentaro pradzia
-    // forEach pereina per kiekvieną dydžio input'ą atskirai.
-    // addEventListener('change') reiškia: kai vartotojas pakeičia dydį, paleidžiama updateBuilder funkcija.
-    // paspaudimu klausytojai komentaro pradzia
+   
     // Cia prie kiekvieno pasirinkimo pridedamas change veiksmas.
     // Kai vartotojas pakeicia dydi, vidaus spalva ar mediena, iskart atnaujinama santrauka ir nuotrauka.
     // paspaudimu klausytojai komentaro pabaiga

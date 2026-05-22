@@ -22,12 +22,9 @@ class OrderController extends Controller
 
     // checkout ir užsakymo sukūrimas komentaro pradzia
     // Šitas metodas gauna checkout formą, patikrina duomenis ir sukuria užsakymą.
-    // checkout duomenu priemimas komentaro pradzia
-    // Sitas metodas veikia kai vartotojas checkout puslapyje spaudzia pateikti uzsakyma.
-    // Jis patikrina duomenis ir perduoda uzsakymo kurima i OrderService.
-    // checkout duomenu priemimas komentaro pabaiga
     public function store(Request $request)
     {
+        // patikrinam useri
         $user = auth()->user();
 
         if (!$user) {
@@ -36,12 +33,7 @@ class OrderController extends Controller
             ], 401);
         }
 
-        // Backend validacija būtina, nes frontend validaciją žmogus gali apeiti per naršyklę.
-        // checkout validacija per Validator komentaro pradzia
-        // Cia patikrinami visi checkout formos laukai.
-        // Pvz vardas privalomas, telefonas turi buti lietuvisko formato, pasto kodas 5 skaitmenys.
-        // Jei kazkas blogai, uzsakymas nesukuriamas ir vartotojas gauna lietuviska klaida.
-        // checkout validacija per Validator komentaro pabaiga
+        //Validacijos pradzia  backend validacija būtina, nes frontend validaciją žmogus gali apeiti per naršyklę.
         $validator = Validator::make($request->all(), [
             'website' => ['nullable', 'max:255'],
             'customer_name' => ['required', 'string', 'max:255'],
@@ -96,9 +88,8 @@ class OrderController extends Controller
         }
 
         // Paysera konfiguracijos patikrinimas komentaro pradzia
-        // Jei vartotojas pasirenka Paysera, bet Paysera nera sukonfiguruota, uzsakymo su Paysera neleidziame.
-        // Taip apsaugoma, kad vartotojas nenueitu i neveikianti mokejima.
-        // Paysera konfiguracijos patikrinimas komentaro pabaiga
+        // Čia patikrinama, ar Paysera sukonfigūruota. Jeigu vartotojas pasirinko Paysera, 
+        // bet nėra projekto ID arba slaptažodžio, sistema neleis pereiti į neveikiantį mokėjimą.
         if (($data['payment_method'] ?? '') === 'paysera' && !$this->paysera->isConfigured()) {
             return response()->json([
                 'message' => 'Mokėjimas banko pavedimu dar nesukonfigūruotas. Užpildykite Paysera duomenis .env faile.',
@@ -139,7 +130,7 @@ class OrderController extends Controller
         // nukreipimas i Paysera komentaro pabaiga
         if (($data['payment_method'] ?? '') === 'paysera') {
             $redirectUrl = $this->paysera->buildCheckoutUrl($order);
-            $message = 'Užsakymas sukurtas. Tęsiame apmokėjimo žingsnį.';
+            $message = 'Užsakymas sukurtas, bet bus patvirtintas tik po sėkmingo Paysera apmokėjimo.';
         }
 
         // Frontend gauna redirect_url ir pagal jį arba rodo užsakymą, arba nukreipia į Paysera.

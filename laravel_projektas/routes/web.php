@@ -11,8 +11,6 @@ use App\Http\Controllers\Store\ProductPageController;
 use Illuminate\Support\Facades\Route;
 
 // web.php maršrutai komentaro pradzia
-// Šitas failas skirtas puslapiams, kuriuos žmogus atsidaro naršyklėje.
-// Čia grąžinami Blade puslapiai: pradžia, prekės, checkout, admin ir kt.
 // web routes komentaro pradzia
 // Sitas failas skirtas puslapiams, kuriuos vartotojas atsidaro narsykleje.
 // Pvz pagrindinis puslapis, checkout, susikurk kubila, admin puslapiai ir Paysera grizimai.
@@ -28,6 +26,9 @@ Route::get('/prekes', [PageController::class, 'products'])->name('prekes');
 Route::get('/prekes/{product:slug}', [ProductPageController::class, 'show'])
     ->name('store.products.show');
 
+    ////// Šita eilutė reiškia, kad kai vartotojas naršyklėje atidaro /kontaktai, Laravel iškviečia 
+    // PageController klasės contact metodą. Tas metodas grąžina kontaktų puslapį. name('kontaktai') yra maršruto pavadinimas, 
+    // kad kode galėčiau patogiai naudoti route('kontaktai'), o ne rašyti adresą ranka.
 Route::get('/kontaktai', [PageController::class, 'contact'])->name('kontaktai');
  // vartotojas atsidaro pagrindinį puslapį arba ‘Susikurk kubilą’ puslapį, route yra aprašytas web.php faile    
 Route::get('/susikurk-savo-kubila', [PageController::class, 'buildTub'])

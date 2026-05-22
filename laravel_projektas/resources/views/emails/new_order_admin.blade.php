@@ -9,12 +9,12 @@
         };
     }
 
-    function paymentStatusLt($status) {
+    function paymentStatusLt($status, $method = null, $provider = null) {
         return match($status) {
-            'unpaid' => 'Laukia suderinimo',
+            'unpaid' => ($method === 'paysera' || $provider === 'paysera') ? 'Laukia Paysera apmokėjimo' : 'Laukia suderinimo',
             'paid' => 'Apmokėta',
             'failed' => 'Nepavyko',
-            'cancelled' => 'Atšaukta',
+            'cancelled' => 'Mokėjimas nutrauktas',
             'refunded' => 'Grąžinimas tvarkomas',
             default => $status,
         };
@@ -42,6 +42,8 @@
     }
 
     $snapshot = collect($order->payment?->meta['cart_snapshot'] ?? [])->values();
+    $requestedMethod = $order->payment?->meta['requested_method'] ?? null;
+    $provider = $order->payment?->provider;
 @endphp
 
 <!DOCTYPE html>
@@ -85,8 +87,11 @@
             <h2>Apmokėjimas</h2>
 
             <p><strong>Tiekėjas:</strong> {{ providerLt($order->payment?->provider) }}</p>
-            <p><strong>Apmokėjimo būsena:</strong> {{ paymentStatusLt($order->payment?->status) }}</p>
-            <p><strong>Pasirinktas būdas:</strong> {{ paymentMethodLt($order->payment?->meta['requested_method'] ?? null) }}</p>
+            <p><strong>Apmokėjimo būsena:</strong> {{ paymentStatusLt($order->payment?->status, $requestedMethod, $provider) }}</p>
+            <p><strong>Pasirinktas būdas:</strong> {{ paymentMethodLt($requestedMethod) }}</p>
+            @if($requestedMethod === 'paysera' && $order->payment?->status !== 'paid')
+                <p><strong>Pastaba:</strong> Paysera užsakymas dar nėra apmokėtas. Patvirtinti tik gavus Paysera callback arba realų mokėjimą.</p>
+            @endif
 
             <hr>
 

@@ -20,8 +20,10 @@ class OrderService
         private readonly CartService $cart
     ) {}
 
-    // užsakymo kūrimo verslo logika komentaro pradzia
+   
     // Čia yra pagrindinis orderio sukūrimas iš krepšelio.
+    // Čia prasideda pagrindinė užsakymo kūrimo logika. Į šitą funkciją ateina patikrinti checkout duomenys iš OrderController, 
+    // ir tada iš session krepšelio sukuriamas realus užsakymas duomenų bazėje.
     public function createFromCart(array $customer, ?string $paymentMethod = null): Order
     {
         // prisijungimo patikrinimas komentaro pradzia

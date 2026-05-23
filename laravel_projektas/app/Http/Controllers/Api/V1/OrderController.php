@@ -21,7 +21,7 @@ class OrderController extends Controller
     ) {}
 
     // checkout ir užsakymo sukūrimas komentaro pradzia
-    // Šitas metodas gauna checkout formą, patikrina duomenis ir sukuria užsakymą.
+    ///////////// Šitas metodas gauna checkout formą, patikrina duomenis ir sukuria užsakymą.
     public function store(Request $request)
     {
         // patikrinam useri
@@ -102,17 +102,10 @@ class OrderController extends Controller
         $data['shipping_address'] = trim((string) $data['shipping_address']);
         $data['shipping_city'] = trim((string) $data['shipping_city']);
         // Net jei kas nors bandytų pakeisti šalį per HTML, serveryje vėl nustatoma Lietuva.
-        // salis uzrakinama backend puseje komentaro pradzia
-        // Net jeigu kazkas pakeistu HTML per inspect, serveris cia vistiek nustato Lietuva.
-        // Tai padaryta, nes projekte pristatymas apribotas Lietuvai.
-        // salis uzrakinama backend puseje komentaro pabaiga
         $data['shipping_country'] = 'Lietuva';
 
-        // Čia perduodama į OrderService, kur jau kuriamas orderis, order_items ir payment įrašas.
-        // uzsakymo sukurimas per service komentaro pradzia
-        // Cia controlleris perduoda patikrintus kliento duomenis i OrderService.
-        // Service jau atlieka pagrindini darba: sukuria order, order items ir payment.
-        // uzsakymo sukurimas per service komentaro pabaiga
+       // Čia jau patikrinti checkout duomenys perduodami į OrderService. 
+       //////////// Controlleris pats nekuria visos užsakymo logikos, jis tik priima, patikrina ir perduoda darbą servisui
         $order = $this->orders->createFromCart(
             $data,
             $data['payment_method'] ?? null

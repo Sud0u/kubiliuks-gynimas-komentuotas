@@ -66,7 +66,7 @@ Jeigu pasirinkta Paysera, sugeneruojama mokėjimo nuoroda. Tik Paysera callback 
 
 Paysera apmokėjimo procesas nuo checkout iki callback patvirtinimo.
 
- 1. checkoutblade.php 796 Čia checkout forma surenka vartotojo duomenis ir mokėjimo būdą. Tada JavaScript siunčia POST užklausą į /api/v1/orders.
+ 1. checkoutblade.php 770 Čia checkout forma surenka vartotojo duomenis ir mokėjimo būdą. Tada JavaScript siunčia POST užklausą į /api/v1/orders.
  2. routes/api.php 60 Čia Laravel pamato /orders API užklausą ir nukreipia ją į OrderController store metodą.
  3. OrderController 25,109 Čia controlleris priima checkout duomenis, patikrina ar vartotojas prisijungęs, 
  validuoja duomenis ir perduoda juos į OrderService, kad būtų sukurtas užsakymas.

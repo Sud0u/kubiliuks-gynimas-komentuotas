@@ -66,6 +66,11 @@ Jeigu vartotojas pasirinko Paysera, čia pradedama kurti Paysera mokėjimo nuoro
 Sistema patikrina Paysera parašą, užsakymo numerį, sumą ir valiutą. Tik tada mokėjimo būsena pakeičiama į paid.
   
 
+  public function callback(Request $request, Order $order) PAISKINIMAS :
+
+  Šitas metodas naudojamas tada, kai Paysera grąžina atsakymą į mano sistemą. Request paima atėjusius mokėjimo duomenis, 
+  o Order leidžia dirbti su konkrečiu užsakymu duomenų bazėje. Tada pagal gautą informaciją sistema gali atnaujinti užsakymo arba mokėjimo būseną
+
 checkout.blade.php → /api/v1/orders
 api.php → /orders
 OrderController → createFromCart

@@ -42,6 +42,7 @@ class PayseraService
    
     // Cia is uzsakymo duomenu paruosiama Paysera mokejimo nuoroda.
     // I ja vartotojas nukreipiamas kai pasirenka apmoketi per Paysera.
+    // sukuriama paysera nuoroda uzsakymo
     public function buildCheckoutUrl(Order $order): string
     {
         if (!$this->isConfigured()) {
@@ -71,7 +72,7 @@ class PayseraService
             'p_email' => $order->customer_email,
             'p_phone' => $order->customer_phone,
         ]);
-
+ //////// sukuriama nuoroda payseros
         return 'https://bank.paysera.com/pay/?' . http_build_query($request);
     }
 

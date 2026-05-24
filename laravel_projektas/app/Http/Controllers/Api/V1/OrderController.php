@@ -118,7 +118,7 @@ class OrderController extends Controller
 
         // Jei pasirinkta Paysera, klientas nukreipiamas į Paysera mokėjimo langą.
         // nukreipimas i Paysera komentaro pradzia
-        // Jei pasirinktas Paysera mokejimas, cia sugeneruojama Paysera nuoroda.
+        //////// Jei pasirinktas Paysera mokejimas, cia sugeneruojama Paysera nuoroda.
         // Frontend gaus redirect_url ir nukreips vartotoja i mokejimo langa.
         // nukreipimas i Paysera komentaro pabaiga
         if (($data['payment_method'] ?? '') === 'paysera') {

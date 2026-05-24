@@ -12,10 +12,13 @@ Todėl šiam e-shop’ui Paysera buvo praktiškesnis pasirinkimas, nes geriau at
 
 Sakyk taip:
 
-Aš atskyriau web.php ir api.php, nes jų paskirtis skirtinga. web.php naudoju puslapiams, pavyzdžiui kontaktams, prekių puslapiui ar checkout puslapiui. O api.php naudoju kai JavaScript įdeda prekę į krepšelį, atnaujina kiekį arba siunčia susikurk savko  kubilo pasirinkimus. Techniškai viską galima būtų daryti ir per web.php, bet aš atskyriau, kad puslapiai ir API veiksmai būtų aiškiau atskirti
+Aš atskyriau web.php ir api.php, nes jų paskirtis skirtinga. web.php naudoju puslapiams, pavyzdžiui kontaktams, prekių puslapiui ar checkout puslapiui.
+ O api.php skirtas API užklausoms, kai puslapis nebūtinai persikrauna, o JavaScript siunčia duomenis į backend ir gauna atsakymą, dažniausiai JSON formatu 
+ Techniškai viską galima būtų daryti ir per web.php, bet aš atskyriau, kad puslapiai ir API veiksmai būtų aiškiau atskirti
 
 web.php skirtas paprastiems svetainės puslapiams, kuriuos vartotojas atidaro naršyklėje.
 api.php skirtas API užklausoms, kai puslapis nebūtinai persikrauna, o JavaScript siunčia duomenis į backend ir gauna atsakymą, dažniausiai JSON formatu
+
 Slug yra gražus ir URL tinkamas tekstinis prekės identifikatorius. Vietoje to, kad URL būtų tik prekės ID, pavyzdžiui /prekes/5, galima naudoti aiškesnį adresą, pavyzdžiui /prekes/didelis-medinis-kubilas. Tai patogiau vartotojui ir atrodo tvarkingiau.
 
 
@@ -59,23 +62,38 @@ Trumpas visas paymento paaiškinimas gynimui
 
 Gali išmokti šitą:
 
-Payment procesas prasideda checkout puslapyje. Vartotojas užpildo duomenis, JavaScript siunčia juos į /api/v1/orders, o api.php nukreipia į OrderController. 
-Controlleris patikrina duomenis ir perduoda juos į OrderService, kuris iš krepšelio sukuria užsakymą ir mokėjimo įrašą su unpaid statusu. 
-Jeigu pasirinkta Paysera, sugeneruojama mokėjimo nuoroda. Tik Paysera callback po sėkmingo patikrinimo pakeičia mokėjimą į paid
+Apmokėjimo procesas prasideda checkout puslapyje. Vartotojas užpildo pristatymo duomenis ir pasirenka mokėjimo būdą. 
+JavaScript tuos duomenis išsiunčia į backend užsakymo sukūrimui, o api.php nukreipia užklausą į OrderController.
+OrderController patikrina, ar vartotojas prisijungęs, validuoja duomenis ir perduoda juos į OrderService. 
+OrderService iš session krepšelio sukuria realų užsakymą duomenų bazėje, sukuria užsakymo prekes ir mokėjimo įrašą su unpaid būsena.
+Jeigu vartotojas pasirenka Paysera, sistema sugeneruoja mokėjimo nuorodą ir nukreipia vartotoją į Paysera apmokėjimą. 
+Pats užsakymas tuo metu dar nėra laikomas apmokėtu. Tik kai Paysera atsiunčia sėkmingo mokėjimo patvirtinimą, sistema pakeičia mokėjimo būseną į paid.
 
 
 Paysera apmokėjimo procesas nuo checkout iki callback patvirtinimo.
 
- 1. checkoutblade.php 770 Čia checkout forma surenka vartotojo duomenis ir mokėjimo būdą. Tada JavaScript siunčia POST užklausą į /api/v1/orders.
- 2. routes/api.php 60 Čia Laravel pamato /orders API užklausą ir nukreipia ją į OrderController store metodą.
- 3. OrderController 25,109 Čia controlleris priima checkout duomenis, patikrina ar vartotojas prisijungęs, 
- validuoja duomenis ir perduoda juos į OrderService, kad būtų sukurtas užsakymas.
- 4. OrderService.php  27, 251 Čia iš session krepšelio sukuriamas realus užsakymas duomenų bazėje. 
- Taip pat sukuriamas mokėjimo įrašas su statusu unpaid, nes užsakymas jau sukurtas, bet pinigai dar negauti.
- 5. OrderController.php 125 kai vartotojas pasirenka paysera mokejima yra sugeneruojama url  mokejimo nuoroda
- 6. PayseraService.php 46  Čia paruošiama Paysera mokėjimo nuoroda. Į ją įdedamas užsakymo ID, suma, valiuta ir grįžimo adresai: accept, cancel ir callback.
- 7. PayseraController.php 66  Čia svarbiausia Paysera vieta. Callback kviečia ne vartotojas, o Paysera serveris po mokėjimo.
-  Sistema patikrina Paysera parašą, užsakymo numerį, sumą ir tik tada pakeičia mokėjimą į paid.
+1. checkout.blade.php 770
+Čia checkout forma surenka vartotojo duomenis ir mokėjimo būdą. Tada JavaScript siunčia POST užklausą į užsakymo sukūrimo API adresą.
+
+2. routes/api.php 60
+Čia Laravel pamato užsakymo API užklausą ir nukreipia ją į OrderController store metodą.
+
+3. OrderController.php 25, 109
+Čia controlleris priima checkout duomenis, patikrina ar vartotojas prisijungęs, validuoja duomenis ir perduoda juos į OrderService, kad būtų sukurtas užsakymas.
+
+4. OrderService.php 27, 251
+Čia iš session krepšelio sukuriamas realus užsakymas duomenų bazėje.
+Taip pat sukuriamas mokėjimo įrašas su būsena unpaid, nes užsakymas jau sukurtas, bet pinigai dar negauti.
+
+5. OrderController.php 125
+Kai vartotojas pasirenka Paysera mokėjimą, po užsakymo sukūrimo sugeneruojama Paysera mokėjimo nuoroda.
+
+6. PayseraService.php 46
+Čia paruošiama Paysera mokėjimo nuoroda(75). Į ją įdedamas užsakymo ID, suma, valiuta ir grįžimo adresai: sėkmingas grįžimas, atšaukimas ir mokėjimo patvirtinimas.
+
+7. PayseraController.php 66
+Čia gaunamas Paysera mokėjimo patvirtinimas.
+Sistema patikrina Paysera parašą, užsakymo numerį, sumą ir valiutą. Tik tada mokėjimo būsena pakeičiama į paid.
   
 
 checkout.blade.php → /api/v1/orders

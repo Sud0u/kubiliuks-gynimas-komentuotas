@@ -62,7 +62,7 @@ class PayseraController extends Controller
     // Paysera callback komentaro pradzia
     // Cia svarbiausia Paysera vieta.
     // Čia prasideda Paysera callback metodas. Šitą metodą kviečia ne vartotojas, o Paysera serveris po mokėjimo.
-    //  Čia sistema gauna Paysera atsakymą ir tikrina, ar mokėjimas tikras.
+    ////////  Čia sistema gauna Paysera atsakymą ir tikrina, ar mokėjimas tikras.
     public function callback(Request $request, Order $order)
     {
         try {

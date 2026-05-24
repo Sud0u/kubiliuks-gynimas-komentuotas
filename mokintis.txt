@@ -24,38 +24,7 @@ Slug yra gražus ir URL tinkamas tekstinis prekės identifikatorius. Vietoje to,
 
 
 
-„Susikurk savo kubilą“ procesas prasideda build_tub.blade.php faile. Vartotojas frontend pusėje pasirenka kubilo dydį, 
-vidaus spalvą ir medienos spalvą. JavaScript pagal pasirinkimus pakeičia nuotrauką ir perskaičiuoja kainą vartotojui ekrane. 
-Kai vartotojas spaudžia įdėti į krepšelį, JavaScript siunčia POST užklausą į /api/v1/cart/custom-tub. api.php
- šitą užklausą nukreipia į CartController addCustomTub metodą. CartController backend pusėje patikrina, ar pasirinkimai leistini, 
- ir dar kartą serveryje perskaičiuoja kainą. Tada patikrinti duomenys perduodami į CartService, kuris individualų kubilą įdeda į session krepšelį.
 
-„Susikurk savo kubilą“ procesas nuo pasirinkimo iki krepšelio:
-
-1. build_tub.blade.php 595
-Čia vartotojas pasirenka kubilo parametrus: dydį, vidaus spalvą ir medienos spalvą.
-
-2. build_tub.blade.php 690
-Čia JavaScript pakeičia kubilo nuotrauką frontend pusėje pagal pasirinktą vidaus ir medienos spalvą.
-Nuotraukos yra paruoštos iš anksto: 4 vidaus spalvos × 4 medienos spalvos = 16 PNG variantų.
-
-3. build_tub.blade.php 822
-Čia prasideda addIndividualTubToCart funkcija. Ji paima vartotojo pasirinkimus ir siunčia POST užklausą į /api/v1/cart/custom-tub.
-
-4. routes/api.php 51
-Čia Laravel pamato /cart/custom-tub API užklausą ir nukreipia ją į CartController addCustomTub metodą.
-
-5. CartController.php 116
-Čia backend pusėje tikrinama, ar iš frontend atėjo tik leistini pasirinkimai: dydis, vidaus spalva, medienos spalva ir kiekis.
-Taip pat čia serveryje dar kartą perskaičiuojama kaina, kad vartotojas negalėtų jos pakeisti per naršyklę.
-
-6. CartService.php 80
-Čia jau patikrinti custom kubilo duomenys įdedami į session krepšelį.
-Jeigu tokia pati komplektacija jau yra krepšelyje, padidinamas kiekis.
-Jeigu nėra, sukuriamas naujas krepšelio įrašas.
-
-7. Toliau checkout procesas veikia taip pat kaip paprastai prekei.
-Individualus kubilas jau yra krepšelyje, todėl OrderService vėliau iš to paties krepšelio sukuria užsakymą ir payment įrašą.
 
 
 Trumpas visas paymento paaiškinimas gynimui
@@ -82,11 +51,12 @@ Paysera apmokėjimo procesas nuo checkout iki callback patvirtinimo.
 Čia controlleris priima checkout duomenis, patikrina ar vartotojas prisijungęs, validuoja duomenis ir perduoda juos į OrderService, kad būtų sukurtas užsakymas.
 
 4. OrderService.php 27, 251
-Čia iš session krepšelio sukuriamas realus užsakymas duomenų bazėje.
-Taip pat sukuriamas mokėjimo įrašas su būsena unpaid, nes užsakymas jau sukurtas, bet pinigai dar negauti.
+Čia OrderService iš session krepšelio sukuria realų užsakymą duomenų bazėje.
+Taip pat sukuriamos užsakymo prekės ir mokėjimo įrašas su būsena unpaid, nes užsakymas jau sukurtas, bet pinigai dar negauti.
 
 5. OrderController.php 125
-Kai vartotojas pasirenka Paysera mokėjimą, po užsakymo sukūrimo sugeneruojama Paysera mokėjimo nuoroda.
+Kai OrderService sukuria užsakymą, OrderController toliau patikrina pasirinktą mokėjimo būdą.
+Jeigu vartotojas pasirinko Paysera, čia pradedama kurti Paysera mokėjimo nuoroda.
 
 6. PayseraService.php 46
 Čia paruošiama Paysera mokėjimo nuoroda(75). Į ją įdedamas užsakymo ID, suma, valiuta ir grįžimo adresai: sėkmingas grįžimas, atšaukimas ir mokėjimo patvirtinimas.

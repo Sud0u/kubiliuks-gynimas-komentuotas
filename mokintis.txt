@@ -23,10 +23,6 @@ Slug yra gražus ir URL tinkamas tekstinis prekės identifikatorius. Vietoje to,
 
 
 
-
-
-
-
 Trumpas visas paymento paaiškinimas gynimui
 
 Gali išmokti šitą:
@@ -41,14 +37,13 @@ Pats užsakymas tuo metu dar nėra laikomas apmokėtu. Tik kai Paysera atsiunči
 
 Paysera apmokėjimo procesas nuo checkout iki callback patvirtinimo.
 
-1. checkout.blade.php 770
-Čia checkout forma surenka vartotojo duomenis ir mokėjimo būdą. Tada JavaScript siunčia POST užklausą į užsakymo sukūrimo API adresą.
+1. Checkout metu vartotojas pateikia užsakymo duomenis ir pasirenka mokėjimo būdą
+2. JS siunčia POST užklausą į /api/v1/orders. (ordercontroller)
 
-2. routes/api.php 60
-Čia Laravel pamato užsakymo API užklausą ir nukreipia ją į OrderController store metodą.
-
-3. OrderController.php 25, 109
+3. OrderController.php 23, 90
 Čia controlleris priima checkout duomenis, patikrina ar vartotojas prisijungęs, validuoja duomenis ir perduoda juos į OrderService, kad būtų sukurtas užsakymas.
+
+Čia $this->orders yra OrderService instance'as, kurį įdeda per konstruktorių:
 
 4. OrderService.php 27, 251
 Čia OrderService iš session krepšelio sukuria realų užsakymą duomenų bazėje.
@@ -65,23 +60,22 @@ Jeigu vartotojas pasirinko Paysera, čia pradedama kurti Paysera mokėjimo nuoro
 Čia gaunamas Paysera mokėjimo patvirtinimas.
 Sistema patikrina Paysera parašą, užsakymo numerį, sumą ir valiutą. Tik tada mokėjimo būsena pakeičiama į paid.
   
-
+PAYSERACONTROLLER SAVOKOS :
   public function callback(Request $request, Order $order) PAISKINIMAS :
 
-  Šitas metodas naudojamas tada, kai Paysera grąžina atsakymą į mano sistemą. Request paima atėjusius mokėjimo duomenis, 
+ Paysera grąžina atsakymą į mano sistemą. Request paima atėjusius mokėjimo duomenis, 
   o Order leidžia dirbti su konkrečiu užsakymu duomenų bazėje. Tada pagal gautą informaciją sistema gali atnaujinti užsakymo arba mokėjimo būseną
 
-checkout.blade.php → /api/v1/orders
-api.php → /orders
-OrderController → createFromCart
-OrderService → Payment::create
-OrderController → buildCheckoutUrl
-PayseraService → callbackurl
-PayseraController → callback
+
+ORDERCONTROLLER SAVKOS :
+public function store(Request \$request) : 
+
+/inicijuoja uzsakymo sukurimas/
+tai yra laravel kontrolerio metodas kuris prima post uzklausa is frontendo per request objekta gauna visa vartotojo info like name,phone,shiping info
+sis metodas /inicijuoja uzsakymo sukurimas/
 
 
-Kur laikoma/saugoma krepselio preke?
 
-Pati vizualinė krepšelio informacija nėra saugoma atskirai. Krepšelio duomenys saugomi session’e per CartService: prekės pavadinimas, 
-kaina, nuotrauka ir kiekis. Tada CartController grąžina tuos duomenis į frontend, o cart.blade.php JavaScript juos atvaizduoja puslapyje: 
-parodo prekes, kiekį ir bendrą sumą.
+KREPSELIS
+
+ saugomas sesijoje, po 'cart' raktu - viskas matosi CartService.php faile, 49-oje eilutėje kur parašyta Session::put($this->sessionKey, $cart)

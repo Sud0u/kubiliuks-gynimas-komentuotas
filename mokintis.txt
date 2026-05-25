@@ -78,4 +78,8 @@ sis metodas /inicijuoja uzsakymo sukurimas/
 
 KREPSELIS
 
- saugomas sesijoje, po 'cart' raktu - viskas matosi CartService.php faile, 49-oje eilutėje kur parašyta Session::put($this->sessionKey, $cart)
+Saugomas CartService.php 49-oje eilutėje kur parašyta Session::put($this->sessionKey, $cart)
+Šita eilutė išsaugo krepšelio masyvą į vartotojo sesiją. Tai reiškia, kad prekės lieka krepšelyje net perkrovus puslapį, nes Laravel pagal vartotojo sesiją prisimena jo krepšelio duomenis.
+
+admin@kubiliuks.lt
+

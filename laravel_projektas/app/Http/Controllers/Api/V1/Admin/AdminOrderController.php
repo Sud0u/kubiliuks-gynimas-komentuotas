@@ -97,7 +97,7 @@ class AdminOrderController extends Controller
     }
 
     public function show($id)
-    {
+    { // Gauna užsakymą su susijusiais prekėmis ir mokėjimu.
         $order = Order::query()
             ->with([
                 'items.product:id,name,slug,price,image',
@@ -181,7 +181,7 @@ class AdminOrderController extends Controller
                 'message' => $this->transitionErrorMessage($oldStatus, $newStatus),
             ], 422);
         }
-
+// visi keitimai bus pritaikyti duomenu bazes tranzakcija
         DB::transaction(function () use ($order, $oldStatus, $newStatus) {
             $order->load(['items', 'payment']);
 

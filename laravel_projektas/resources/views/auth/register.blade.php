@@ -36,16 +36,8 @@
 
                 <div id="registerClientError" class="mt-4 hidden rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
 
-                {-- registracijos forma komentaro pradzia --}
-{{-- Cia yra vartotojo registracijos forma. --}}
-{{-- Vartotojas iveda varda, email, slaptazodi ir turi pazymeti taisykliu checkbox. --}}
-{-- registracijos forma komentaro pabaiga --}
 <form method="POST" action="{{ route('register') }}" class="space-y-4" id="registerForm" novalidate>
                     @csrf
-                    {-- recaptcha registracijos puslapyje komentaro pradzia --}
-                    {{-- Cia registracijos puslapis susijes su reCAPTCHA tokenu. --}}
-                    {{-- Tokenas perduodamas i RegisteredUserController, kur serveris ji patikrina. --}}
-                    {-- recaptcha registracijos puslapyje komentaro pabaiga --}
                     <input type="hidden" name="recaptcha_token" id="recaptchaTokenRegister">
 
                     <div>
@@ -184,13 +176,8 @@
                         @enderror
                     </div>
 
-                    {{-- Patvirtinimas reikalingas tam, kad vartotojas prieš registraciją sutiktų su taisyklėmis. --}}
                     <div>
                         <label for="terms" class="flex items-start gap-3 rounded-2xl border border-black/10 bg-stone-50 px-4 py-3 text-sm text-stone-700">
-                            {-- taisykliu checkbox frontend puseje komentaro pradzia --}
-                            {{-- Cia yra checkbox, kuri vartotojas privalo pazymeti pries registracija. --}}
-                            {{-- Jei nepazymi, frontend rodo klaida, o backend vis tiek papildomai tikrina terms accepted. --}}
-                            {-- taisykliu checkbox frontend puseje komentaro pabaiga --}
                             <input
                                 id="terms"
                                 name="terms"

@@ -10,6 +10,5 @@ interface OrderRepositoryInterface
 {
     public function baseQuery(): Builder;
 
-    /** Admin – visi, user – tik savo */
     public function listForUser(int $userId, bool $isAdmin): Collection;
 }

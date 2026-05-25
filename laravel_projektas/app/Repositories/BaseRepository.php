@@ -16,7 +16,6 @@ abstract class BaseRepository
         $this->model = $model;
     }
 
-    /** Naujas query (patogu išvestiniams repository). */
     public function query(): Builder
     {
         return $this->model->newQuery();

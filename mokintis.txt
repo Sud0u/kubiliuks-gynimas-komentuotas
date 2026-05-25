@@ -78,3 +78,10 @@ OrderService → Payment::create
 OrderController → buildCheckoutUrl
 PayseraService → callbackurl
 PayseraController → callback
+
+
+Kur laikoma/saugoma krepselio preke?
+
+Pati vizualinė krepšelio informacija nėra saugoma atskirai. Krepšelio duomenys saugomi session’e per CartService: prekės pavadinimas, 
+kaina, nuotrauka ir kiekis. Tada CartController grąžina tuos duomenis į frontend, o cart.blade.php JavaScript juos atvaizduoja puslapyje: 
+parodo prekes, kiekį ir bendrą sumą.

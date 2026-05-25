@@ -25,8 +25,8 @@ class CartController extends Controller
             ->values()
             ->map(function ($it) {
                 $qty = (int) ($it['qty'] ?? 1);
-                $price = (float) ($it['price'] ?? 0);  // komentaras ka daro etc
-                $type = (string) ($it['type'] ?? 'product');  // komentas ka daro
+                $price = (float) ($it['price'] ?? 0);
+                $type = (string) ($it['type'] ?? 'product');
 
                 return [
                     'id' => $it['cart_key'] ?? ($it['id'] ?? null),
@@ -58,6 +58,7 @@ class CartController extends Controller
         ]);
     }
 
+    // cia priimama paprastos prekes idejimo i krepseli API uzklausa.
     public function addItem(Request $request, CartService $cartService)
     {
         $validated = $request->validate([
@@ -68,6 +69,7 @@ class CartController extends Controller
         $productId = (int) $validated['product_id'];
         $qty = (int) ($validated['qty'] ?? 1);
 
+        // pagal product_id pasiimama aktyvi preke is products lenteles.
         $product = Product::query()
             ->where('id', $productId)
             ->where('is_active', 1)
@@ -85,6 +87,7 @@ class CartController extends Controller
             ], 422);
         }
 
+        // cia patikrinamas likutis, kad neleistu ideti daugiau negu yra sandelyje.
         $stock = (int) ($product->stock ?? 0);
         $currentQty = $this->currentQtyInCart($cartService, $productId);
 
@@ -102,6 +105,7 @@ class CartController extends Controller
             ], 422);
         }
 
+        // po patikrinimu preke perduodama i CartService ir issaugoma session krepselyje.
         $cartService->add($product, $qty);
 
         return response()->json([
@@ -109,34 +113,28 @@ class CartController extends Controller
         ], 201);
     }
 
-    // KODO PRADŽIA: individualaus kubilo įdėjimas į krepšelį
-    // Čia backend pusėje patikrinama, ar iš frontend atėjo tik leistini pasirinkimai.
-    // cia jau backend dalis. controlleris priima tuos pasirinkimus, patikrina ar jie teisingi ir dar karta serveryje perskaiciuoja kaina
-   // čia prasideda metodas, kuris priima individualaus kubilo duomenis iš frontend pusės ir viska cia tikrina validuoja etc.
+    // cia priimamas individualaus kubilo idejimas i krepseli.
     public function addCustomTub(Request $request, CartService $cartService)
     {
 
-    // sistema tikrina ar atejo leistini duomenys dydis spalva ir vidaus spalva
+        // serveris leidzia tik is anksto numatytus dydzius ir spalvas.
         $validated = $request->validate([
             'size_key' => ['required', 'in:180,200,220'],
             'inside_key' => ['required', 'in:balta,melyna,raudona,zalia'],
             'wood_key' => ['required', 'in:base-ruda,chestnut-ruda,darkred-ruda,deepcrimson-ruda'],
             'qty' => ['nullable', 'integer', 'min:1', 'max:99'],
         ]);
- // cia tikrinama kaina ir kainos pasirinkimai , kaina neaklai pasirinkta is javascripto
         $sizeMap = [
             '180' => ['label' => '180 cm', 'price' => 0],
             '200' => ['label' => '200 cm', 'price' => 300],
             '220' => ['label' => '220 cm', 'price' => 650],
         ];
-// tas pats principas tik apie vidaus spalva
         $insideMap = [
             'balta' => ['label' => 'Balta', 'price' => 0],
             'melyna' => ['label' => 'Mėlyna', 'price' => 90],
             'raudona' => ['label' => 'Raudona', 'price' => 90],
             'zalia' => ['label' => 'Žalia', 'price' => 90],
         ];
-// tas paats principas tik apie medzio spalva
         $woodMap = [
             'base-ruda' => ['label' => 'Šviesi ruda', 'price' => 0],
             'chestnut-ruda' => ['label' => 'Kaštoninė', 'price' => 120],
@@ -149,17 +147,14 @@ class CartController extends Controller
         $woodKey = (string) $validated['wood_key'];
         $qty = (int) ($validated['qty'] ?? 1);
 
-        ////// cia kaina perskaiciuojama serveryje. prie bazines kainos pridedamas dydzio,
-        /////  vidaus spalvos ir medienos kainos priedas. taip apsisaugoma, kad vartotojas negaletu per narsykle pasikeisti kainos.
-        ///// svarbiasia vieta nes kaina perskaiciuojama serverio puseje frontonde kaina rodoma vartotojui
-        ///// taciau galutine kaina dar karta yra perskaiciuojama backende kad vartotojas negaletu sukciauti per sistema isideti pigesnio varianto.
+        // kaina perskaiciuojama backende, kad vartotojas negaletu jos pasikeisti narsykleje.
         $basePrice = 2200;
         $totalPrice = $basePrice
             + (int) $sizeMap[$sizeKey]['price']
             + (int) $insideMap[$insideKey]['price']
             + (int) $woodMap[$woodKey]['price'];
 
-        // Į krepšelį saugomi ne tik pavadinimai, bet ir pasirinkimų meta informacija.
+        // patikrinti pasirinkimai perduodami i CartService kaip custom_tub irasas.
         $cartService->addCustomTub([
             'size_key' => $sizeKey,
             'size_label' => $sizeMap[$sizeKey]['label'],
@@ -175,7 +170,6 @@ class CartController extends Controller
             'message' => 'Individualus kubilas įdėtas į krepšelį.',
         ], 201);
     }
-    // KODO PABAIGA: individualaus kubilo įdėjimas į krepšelį
 
     public function updateItem(Request $request, $id, CartService $cartService)
     {
@@ -221,7 +215,6 @@ class CartController extends Controller
 
         $stock = (int) ($product->stock ?? 0);
 
-        // Paprastas likučio saugiklis: krepšelyje neleidžiama turėti daugiau, negu yra sandėlyje.
         if ($qty > $stock) {
             return response()->json([
                 'message' => 'Sandėlyje yra ' . $stock . ' vnt.',

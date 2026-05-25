@@ -22,7 +22,6 @@ class AuthenticatedSessionController extends Controller
 
     public function store(LoginRequest $request, RecaptchaService $recaptcha): RedirectResponse
     {
-        // Prisijungime taip pat tikrinama reCAPTCHA.
         $result = $recaptcha->verify(
             $request->input('recaptcha_token'),
             'login'

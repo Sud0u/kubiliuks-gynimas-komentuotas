@@ -12,10 +12,6 @@ use App\Http\Controllers\Api\V1\Admin\AdminProductController;
 use App\Http\Controllers\Api\V1\Admin\AdminOrderController;
 
 
-// API routes komentaro pradzia
-// Sitas failas skirtas veiksmams kurie vyksta per JavaScript.
-// Pvz krepselio atnaujinimas, prekes idejimas, custom kubilas arba uzsakymo pateikimas.
-// API routes komentaro pabaiga
 Route::prefix('v1')->group(function () {
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{slug}', [ProductController::class, 'show']);
@@ -23,7 +19,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/categories/{id}/products', [CategoryController::class, 'productsByCategory']);
 
-    // Naudoju web middleware, nes krepšelis ir užsakymai remiasi sesija bei prisijungusiu vartotoju.
+    // web middleware reikalingas, nes krepselis remiasi session.
     Route::middleware('web')->group(function () {
         Route::middleware('throttle:login')->group(function () {
             Route::post('/auth/login', [AuthController::class, 'login']);
@@ -38,31 +34,26 @@ Route::prefix('v1')->group(function () {
             Route::post('/auth/logout', [AuthController::class, 'logout']);
         });
 
-        // Krepšelio veiksmai ribojami throttle, kad nebūtų galima be galo siųsti užklausų.
+        // cia pagrindiniai krepselio API keliai.
         Route::middleware('throttle:cart')->group(function () {
             Route::get('/cart', [CartController::class, 'show']);
             Route::post('/cart/items', [CartController::class, 'addItem']);
-            // custom kubilo API kelias komentaro pradzia
-            // Sitas route priima JavaScript uzklausa is build_tub.blade.php.
-            // Kai vartotojas spaudzia ideti individualu kubila i krepseli, uzklausa ateina cia.
-            // custom kubilo API kelias komentaro pabaiga
 
-            //// cia matosi kur nueina ta custom kubilo uzklausa. kai frontend siuncia i /api/v1/cart/custom-tub nukreipia ja i CartController addCustomTub metodu.
+            // sita uzklausa ateina is puslapio "Susikurk kubila".
             Route::post('/cart/custom-tub', [CartController::class, 'addCustomTub']);
             Route::patch('/cart/items/{id}', [CartController::class, 'updateItem']);
             Route::delete('/cart/items/{id}', [CartController::class, 'removeItem']);
             Route::delete('/cart/clear', [CartController::class, 'clear']);
         });
 
-        // Užsakymą gali pateikti tik prisijungęs vartotojas.
         Route::middleware(['auth', 'throttle:orders'])->group(function () {
+            // checkout POST uzklausa ateina cia ir keliauja i OrderController store metoda.
             Route::post('/orders', [OrderController::class, 'store']);
             Route::get('/orders', [OrderController::class, 'index']);
             Route::get('/orders/{id}', [OrderController::class, 'show']);
             Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
         });
 
-        // Admin API papildomai tikrina, ar vartotojas turi administratoriaus teisę.
         Route::prefix('admin')
             ->middleware(['auth', 'can:isAdmin', 'throttle:admin-api'])
             ->group(function () {
@@ -79,4 +70,3 @@ Route::prefix('v1')->group(function () {
     });
 });
 
-// api.php maršrutai komentaro pabaiga

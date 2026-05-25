@@ -2,10 +2,6 @@
 
 @section('title', 'Užsakymo pateikimas')
 
-{-- checkout puslapis komentaro pradzia --}
-{{-- Sitas failas yra vartotojo uzsakymo pateikimo puslapis. --}}
-{{-- Cia yra forma, kur vartotojas iveda kontakta, adresa ir pasirenka mokejimo buda. --}}
-{-- checkout puslapis komentaro pabaiga --}
 @section('content')
 <section class="py-8 sm:py-12 bg-stone-50">
     <div class="max-w-6xl mx-auto px-4 lg:px-0">
@@ -98,14 +94,8 @@
                             <div class="text-lg font-bold text-stone-900">Pirkėjo informacija</div>
                         </div>
 
-                        {-- checkout forma komentaro pradzia --}
-{{-- Cia prasideda forma, kurios duomenys veliau issiunciami i API. --}}
-{{-- Backend puseje OrderController dar karta patikrina visus laukus. --}}
-{-- checkout forma komentaro pabaiga --}
- {{-- checkout formos pradziaVartotojas čia įveda pristatymo duomenis ir pasirenka mokėjimo būdą. 
- Forma nėra siunčiama paprastu puslapio perkrovimu,
-  nes apačioje JavaScript ją pagauna ir išsiunčia per API. --}}
-<form id="checkoutForm" class="grid gap-4 md:grid-cols-2" novalidate>
+                        {{-- cia vartotojas suveda pristatymo duomenis ir pasirenka mokejimo buda. --}}
+                        <form id="checkoutForm" class="grid gap-4 md:grid-cols-2" novalidate>
                             <input
                                 type="text"
                                 name="website"
@@ -114,7 +104,6 @@
                                 autocomplete="off"
                                 class="hidden"
                             >
-                                                    {-- pasirenkamas payment metodas --}
                             <input type="hidden" name="payment_method" id="payment_method" value="cash_on_delivery">
 
                             <div class="md:col-span-2">
@@ -325,11 +314,8 @@
     const summaryCount = document.getElementById('summaryCount');
     const summaryTotal = document.getElementById('summaryTotal');
     const summaryPayment = document.getElementById('summaryPayment');
-    // checkout JavaScript forma komentaro pradzia
-// Cia JavaScript pasiima checkout forma is puslapio.
-// Veliau prie jos pridedamas submit veiksmas, kad uzsakymas butu siunciamas per API.
-// checkout JavaScript forma komentaro pabaiga
-const checkoutForm = document.getElementById('checkoutForm');
+    // cia JavaScript pasiima checkout forma, kad galetu ja issiusti i API.
+    const checkoutForm = document.getElementById('checkoutForm');
     const submitBtn = document.getElementById('submitBtn');
     const paymentMethodInput = document.getElementById('payment_method');
     const paymentChoices = document.querySelectorAll('.payment-choice');
@@ -497,13 +483,10 @@ const checkoutForm = document.getElementById('checkoutForm');
         ].forEach(clearFieldError);
     }
 
-    // checkout frontend validacija komentaro pradzia
-    // Šita vieta tikrina laukus dar prieš siunčiant į backend. Backend tikrinimas vis tiek lieka OrderController faile.
     function validatePhone(phone) {
         return /^(\+3706\d{7}|86\d{7})$/.test(phone);
     }
 
-    // Pašto kodas turi būti 5 skaitmenys.
     function validatePostcode(postcode) {
         return /^\d{5}$/.test(postcode);
     }
@@ -512,7 +495,6 @@ const checkoutForm = document.getElementById('checkoutForm');
         return /^[A-Za-zĄČĘĖĮŠŲŪŽąčęėįšųūž\s\-]{2,50}$/.test(city);
     }
 
-    // Šalis užrakinta į Lietuvą, nes šitam projekte pristatymas numatytas Lietuvoje.
     function validateCountry(country) {
         return country === 'Lietuva';
     }
@@ -597,12 +579,7 @@ const checkoutForm = document.getElementById('checkoutForm');
         return valid;
     }
 
-    // checkout frontend validacija komentaro pabaiga
 
-    // checkout async funkcija komentaro pradzia
-// Cia prasideda async funkcija, nes reikia laukti serverio atsakymo.
-// Uzsakymo pateikimas vyksta fone be papildomo rankinio perkrovimo.
-// checkout async funkcija komentaro pabaiga
 async function api(url, method = 'GET', body = null) {
         const headers = {
             'Accept': 'application/json',
@@ -621,10 +598,6 @@ async function api(url, method = 'GET', body = null) {
             options.body = JSON.stringify(body);
         }
 
-        // uzsakymo siuntimas i serveri komentaro pradzia
-        // Cia checkout duomenys issiunciami i Laravel API.
-        // Serveris tada sukuria uzsakyma arba grazina validacijos klaidas.
-        // uzsakymo siuntimas i serveri komentaro pabaiga
         const response = await fetch(url, options);
 
         let data = null;
@@ -767,7 +740,6 @@ async function api(url, method = 'GET', body = null) {
     updatePaymentSummary();
     loadSummary();
 
-    // checkout formos uzpildymas siunciamas duomenys siunciami per api.
     checkoutForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
 
@@ -779,8 +751,7 @@ async function api(url, method = 'GET', body = null) {
         submitBtn.disabled = true;
         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
         showMsg('Vykdomas užsakymo pateikimas...', true);
-        
-                            // surenkami uzsakovo duomenys
+
         const payload = {
             website: checkoutForm.website.value.trim(),
             customer_name: checkoutForm.customer_name.value.trim(),
@@ -793,9 +764,10 @@ async function api(url, method = 'GET', body = null) {
         };
 
         try {
+            // cia uzsakymo duomenys issiunciami i backend: /api/v1/orders.
             const response = await api('/api/v1/orders', 'POST', payload);
 
-            // Jei backend grąžina Paysera redirect_url, klientas nukreipiamas į mokėjimo langą.
+            // jei pasirinkta Paysera, backend grazina redirect_url i mokejimo langa.
             if (response?.data?.payment_method === 'paysera' && response?.data?.redirect_url) {
                 showMsg('Pereinama prie apmokėjimo...', true);
                 window.location.href = response.data.redirect_url;
@@ -811,7 +783,6 @@ async function api(url, method = 'GET', body = null) {
             submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
         }
     });
-    // checkout formos siuntimas komentaro pabaiga
 })();
 </script>
 @endauth

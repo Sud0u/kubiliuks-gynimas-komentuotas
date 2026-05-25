@@ -28,7 +28,6 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            // Laravel papildomai žino, kad password laukas yra hash tipo.
             'password' => 'hashed',
             'is_admin' => 'boolean',
         ];

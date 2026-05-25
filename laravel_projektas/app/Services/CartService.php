@@ -7,33 +7,17 @@ use Illuminate\Support\Facades\Session;
 
 class CartService
 {
-    // krepselio sesijos raktas komentaro pradzia
-    // Krepselis saugomas sesijoje su raktu cart.
-    // Tai reiskia, kad vartotojo krepselis laikomas narsymo sesijoje, kol jis perka.
-    // krepselio sesijos raktas komentaro pabaiga
+    // cia nurodytas session raktas, kuriame laikomas krepselis.
     private string $sessionKey = 'cart';
 
-    // krepselio gavimas komentaro pradzia
-    // Sita funkcija paima krepseli is sesijos.
-    // Jei krepselio dar nera, grazinamas tuscias masyvas, kad kodas nesugriutu.
-    // krepselio gavimas komentaro pabaiga
     public function get(): array
     {
+        // is session paimamas dabartinis krepselis.
         return Session::get($this->sessionKey, []);
     }
 
-    // paprastos prekes pridejimas komentaro pradzia
-    // Cia i krepseli idedama paprasta preke is katalogo.
-    // Jei tokia preke jau yra krepselyje, padidinamas jos kiekis.
-    // Jei jos dar nera, sukuriamas naujas krepselio irasas.
-    // paprastos prekes pridejimas komentaro pabaiga
     public function add(Product $product, int $qty = 1): void
     {
-        // kiekio saugiklis komentaro pradzia
-        // Cia tikrinama ar kiekis nera mazesnis uz 1.
-        // Jei ateitu 0 arba minusas, sistema vistiek padaro 1.
-        // Taip apsaugoma, kad krepselyje nebutu blogo kiekio.
-        // kiekio saugiklis komentaro pabaiga
         if ($qty < 1) {
             $qty = 1;
         }
@@ -41,10 +25,6 @@ class CartService
         $cart = $this->get();
         $id = (int) $product->id;
 
-        // ar preke jau yra krepselyje komentaro pradzia
-        // Cia tikrinama ar tokia preke jau egzistuoja krepselyje.
-        // Jei egzistuoja, jos kiekis padidinamas. Jei ne, sukuriamas naujas irasas.
-        // ar preke jau yra krepselyje komentaro pabaiga
         if (isset($cart[$id])) {
             $cart[$id]['qty'] = (int) ($cart[$id]['qty'] ?? 0) + $qty;
             $cart[$id]['slug'] = $cart[$id]['slug'] ?? $product->slug;
@@ -53,6 +33,7 @@ class CartService
             $cart[$id]['image'] = $product->image;
             $cart[$id]['type'] = 'product';
         } else {
+            // cia paprasta preke paverciama krepselio irasu.
             $cart[$id] = [
                 'id' => $id,
                 'cart_key' => (string) $id,
@@ -65,28 +46,17 @@ class CartService
             ];
         }
 
-        // krepselio issaugojimas komentaro pradzia
-        // Cia atnaujintas krepselis irasomas atgal i sesija.
-        // Be sitos eilutes pakeitimai neissisaugotu.
-        // krepselio issaugojimas komentaro pabaiga
+        // cia krepselis realiai issaugomas i session.
         Session::put($this->sessionKey, $cart);
     }
-   /////////// CartService yra ta vieta, kur jau patikrintas individualus kubilas realiai įdedamas į krepšelį.
-    // individualaus kubilo saugojimas sesijos krepšelyje komentaro pradzia
 
 
-    // cia prasideda service dalis. i sita funkcija ateina jau patikrinti custom kubilo duomenys is CartController. 
-    // controlleris patikrino pasirinkimus ir kaina, o cia jau kubilas dedamas i krepseli
     public function addCustomTub(array $config, int $qty = 1): string
     {
         if ($qty < 1) {
             $qty = 1;
         }
 
-       // cia is perduoto config masyvo paimami custom kubilo pasirinkimai. 
-        //key - sistemai o label - vartotojui 
-        // parodyti dalis yra technine reiksme, pvz melyna, 
-        // o label dalis yra grazus tekstas, kuris rodomas vartotojui, pvz Melyna arba 200 cm
         $sizeKey = (string) ($config['size_key'] ?? '180');
         $insideKey = (string) ($config['inside_key'] ?? 'balta');
         $woodKey = (string) ($config['wood_key'] ?? 'base-ruda');
@@ -95,37 +65,20 @@ class CartService
         $insideLabel = (string) ($config['inside_label'] ?? 'Balta');
         $woodLabel = (string) ($config['wood_label'] ?? 'Šviesi ruda');
 
-        // custom kubilo kaina ir nuotrauka komentaro pradzia
-        // Cia paimama custom kubilo galutine kaina ir nuotraukos kelias.
-        // Kaina jau buna paskaiciuota CartController faile backend puseje.
-        // custom kubilo kaina ir nuotrauka komentaro pabaiga
         $unitPrice = (float) ($config['price'] ?? 0);
         $image = (string) ($config['image'] ?? ('images/kubilai/' . $insideKey . '-' . $woodKey . '.png'));
 
-        // Raktas sudaromas iš pasirinkimų, todėl ta pati komplektacija krepšelyje susijungia į vieną eilutę.
-        // custom kubilo unikalus raktas komentaro pradzia
-        // Cia sukuriamas specialus raktas is dydzio, vidaus spalvos ir medienos.
-        // Del to tokia pati komplektacija krepselyje susijungia i viena eilute.
-        // custom kubilo unikalus raktas komentaro pabaiga
+        // raktas sudaromas pagal pasirinkimus, kad ta pati komplektacija nesidubliuotu.
         $key = $this->customTubKey($sizeKey, $insideKey, $woodKey);
 
         $cart = $this->get();
 
-        // ar toks custom kubilas jau yra komentaro pradzia
-        // Cia tikrinama ar toks pats individualus kubilas jau yra krepselyje.
-        // Jei yra, padidinamas kiekis. Jei nera, sukuriamas naujas krepselio irasas.
-        // ar toks custom kubilas jau yra komentaro pabaiga
         if (isset($cart[$key])) {
             $cart[$key]['qty'] = (int) ($cart[$key]['qty'] ?? 0) + $qty;
             $cart[$key]['price'] = $unitPrice;
             $cart[$key]['image'] = $image;
             $cart[$key]['name'] = 'Individualus kubilas';
             $cart[$key]['subtitle'] = $sizeLabel . ' · ' . $insideLabel . ' · ' . $woodLabel;
-            // Meta dalyje saugomi pasirinkimai, kad vėliau juos matytume krepšelyje ir užsakyme.
-            // custom kubilo meta informacija komentaro pradzia
-            // Meta dalyje saugomi visi pasirinkimai: dydis, vidus, mediena ir gamybos laikas.
-            // Veliau sita informacija galima rodyti krepselyje arba uzsakymo santraukoje.
-            // custom kubilo meta informacija komentaro pabaiga
             $cart[$key]['meta'] = [
                 'builder_type' => 'custom_tub',
                 'size_key' => $sizeKey,
@@ -137,20 +90,15 @@ class CartService
                 'production_time' => '6–8 savaitės',
             ];
         } else {
-            // naujas custom kubilo irasas komentaro pradzia
-            // Cia sukuriamas naujas individualaus kubilo irasas krepselyje.
-            // Type yra custom_tub, todel veliau sistema zino kad tai ne paprasta preke.
-            // naujas custom kubilo irasas komentaro pabaiga
 
-///
 
+            // cia i krepseli idedamas individualaus kubilo irasas.
             $cart[$key] = [
                 'id' => null,
                 'cart_key' => $key,
                 'type' => 'custom_tub',
-                'slug' => 'susikurk-savo-kubila', // ka mato https nuorodoje kitaip tariant pritaikytas internetiniam adresui
+                'slug' => 'susikurk-savo-kubila',
                 'name' => 'Individualus kubilas',
-                // Čia sujungiami pasirinkimai, kad krepšelyje matytųsi dydis, vidaus spalva ir mediena.
                 'subtitle' => $sizeLabel . ' · ' . $insideLabel . ' · ' . $woodLabel,
                 'price' => $unitPrice,
                 'image' => $image,
@@ -167,20 +115,13 @@ class CartService
                 ],
             ];
         }
-     // Čia atnaujintas krepšelis išsaugomas į session. Tai reiškia, kad krepšelis laikomas vartotojo sesijoje iki checkout
-     
-     // CartService faile jau vyksta pats įdėjimas į krepšelį. Controlleris prieš tai patikrino duomenis ir perskaičiavo kainą,
-     //  o čia sukuriamas krepšelio įrašas. Individualus kubilas gauna tipą custom_tub, prie jo pridedamas pavadinimas, pasirinkimai, 
-     // kaina, nuotrauka ir kiekis. Tada visas krepšelis išsaugomas į session
+
+        // cia custom kubilas issaugomas tame paciame session krepselyje.
         Session::put($this->sessionKey, $cart);
 
         return $key;
     }
-    // individualaus kubilo saugojimas sesijos krepšelyje komentaro pabaiga
 
-    // paprastos prekes kiekio atnaujinimas komentaro pradzia
-    // Cia atnaujinamas paprastos katalogo prekes kiekis krepselyje.
-    // paprastos prekes kiekio atnaujinimas komentaro pabaiga
     public function update(Product $product, int $qty): void
     {
         if ($qty < 1) {
@@ -204,10 +145,6 @@ class CartService
         Session::put($this->sessionKey, $cart);
     }
 
-    // custom iraso kiekio atnaujinimas komentaro pradzia
-    // Cia atnaujinamas irasas pagal specialu cart key.
-    // Tai naudojama custom_tub, nes jis neturi paprasto produkto id kaip katalogo preke.
-    // custom iraso kiekio atnaujinimas komentaro pabaiga
     public function updateByKey(string $key, int $qty): void
     {
         if ($qty < 1) {
@@ -230,10 +167,6 @@ class CartService
         $this->removeById((int) $product->id);
     }
 
-    // salinimas pagal produkto id komentaro pradzia
-    // Cia pasalinama paprasta preke is krepselio pagal jos id.
-    // Jei po salinimo krepselis tuscias, visa sesija isvaloma.
-    // salinimas pagal produkto id komentaro pabaiga
     public function removeById(int $productId): void
     {
         $cart = $this->get();
@@ -248,10 +181,6 @@ class CartService
         Session::put($this->sessionKey, $cart);
     }
 
-    // salinimas pagal custom key komentaro pradzia
-    // Cia salinamas irasas pagal specialu rakta.
-    // Tai reikalinga individualiam kubilui, nes jo raktas sudarytas is pasirinkimu.
-    // salinimas pagal custom key komentaro pabaiga
     public function removeByKey(string $key): void
     {
         $cart = $this->get();
@@ -280,10 +209,6 @@ class CartService
         return isset($cart[$key]);
     }
 
-    // custom_tub atpazinimas komentaro pradzia
-    // Cia patikrinama ar krepselio raktas prasideda custom_tub--.
-    // Jei taip, sistema zino kad tai individualus kubilas.
-    // custom_tub atpazinimas komentaro pabaiga
     public function isCustomKey(string $key): bool
     {
         return str_starts_with($key, 'custom_tub--');
@@ -294,10 +219,6 @@ class CartService
         Session::forget($this->sessionKey);
     }
 
-    // krepselio sumos skaiciavimas komentaro pradzia
-    // Cia sudedamos visu krepselio prekiu sumos.
-    // Kiekvienai eilutei kaina dauginama is kiekio ir tada viskas susumuojama.
-    // krepselio sumos skaiciavimas komentaro pabaiga
     public function total(array $cart = null): float
     {
         $cart = $cart ?? $this->get();
@@ -307,10 +228,6 @@ class CartService
             ->sum();
     }
 
-    // krepselio paruosimas order items komentaro pradzia
-    // Cia krepselio elementai paverciami i paprasta struktura uzsakymo prekems.
-    // Sita vieta naudinga kai uzsakymo kurimo metu reikia zinoti produkto id ir kieki.
-    // krepselio paruosimas order items komentaro pabaiga
     public function toOrderItems(array $cart = null): array
     {
         $cart = $cart ?? $this->get();
@@ -324,10 +241,6 @@ class CartService
             ->all();
     }
 
-    // custom kubilo rakto sudarymas komentaro pradzia
-    // Cia is pasirinkto dydzio, vidaus spalvos ir medienos sudaromas vienas raktas.
-    // Pvz custom_tub--200--melyna--chestnut-ruda.
-    // custom kubilo rakto sudarymas komentaro pabaiga
     private function customTubKey(string $sizeKey, string $insideKey, string $woodKey): string
     {
         return 'custom_tub--' . $sizeKey . '--' . $insideKey . '--' . $woodKey;

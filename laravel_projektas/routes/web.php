@@ -10,11 +10,6 @@ use App\Http\Controllers\Store\PayseraController;
 use App\Http\Controllers\Store\ProductPageController;
 use Illuminate\Support\Facades\Route;
 
-// web.php maršrutai komentaro pradzia
-// web routes komentaro pradzia
-// Sitas failas skirtas puslapiams, kuriuos vartotojas atsidaro narsykleje.
-// Pvz pagrindinis puslapis, checkout, susikurk kubila, admin puslapiai ir Paysera grizimai.
-// web routes komentaro pabaiga
 Route::get('/', [PageController::class, 'home'])->name('home');
 
 Route::get('/dashboard', [PageController::class, 'dashboard'])
@@ -26,11 +21,7 @@ Route::get('/prekes', [PageController::class, 'products'])->name('prekes');
 Route::get('/prekes/{product:slug}', [ProductPageController::class, 'show'])
     ->name('store.products.show');
 
-    ////// Šita eilutė reiškia, kad kai vartotojas naršyklėje atidaro /kontaktai, Laravel iškviečia 
-    // PageController klasės contact metodą. Tas metodas grąžina kontaktų puslapį. name('kontaktai') yra maršruto pavadinimas, 
-    // kad kode galėčiau patogiai naudoti route('kontaktai'), o ne rašyti adresą ranka.
 Route::get('/kontaktai', [PageController::class, 'contact'])->name('kontaktai');
- // vartotojas atsidaro pagrindinį puslapį arba ‘Susikurk kubilą’ puslapį, route yra aprašytas web.php faile    
 Route::get('/susikurk-savo-kubila', [PageController::class, 'buildTub'])
     ->name('build.tub');
 
@@ -49,8 +40,6 @@ Route::get('/slapuku-politika', [PageController::class, 'cookies'])
 Route::get('/taisykles', [PageController::class, 'terms'])
     ->name('terms');
 
-// Paysera grąžinimo maršrutai.
-// accept/cancel mato klientas, o callback naudoja pati Paysera sistema.
 Route::get('/paysera/accept/{order}', [PayseraController::class, 'accept'])
     ->middleware('auth')
     ->name('paysera.accept');
@@ -73,7 +62,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Admin dalis apsaugota: reikia būti prisijungus ir turėti administratoriaus teises.
 Route::prefix('admin')
     ->name('admin.')
     ->middleware(['auth', 'can:isAdmin'])
@@ -87,6 +75,5 @@ Route::prefix('admin')
         Route::get('/orders/{id}', [AdminOrderPageController::class, 'show'])->name('orders.show');
     });
 
-// web.php maršrutai komentaro pabaiga
 
 require __DIR__ . '/auth.php';

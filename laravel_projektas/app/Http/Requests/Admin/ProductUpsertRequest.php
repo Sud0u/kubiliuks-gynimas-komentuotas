@@ -6,19 +6,11 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ProductUpsertRequest extends FormRequest
 {
-    // leidimas admin formai komentaro pradzia
-    // Cia grazinama true, nes leidimai siame projekte valdomi per route/middleware.
-    // Tai reiskia, kad i sita forma jau turi patekti tik admin.
-    // leidimas admin formai komentaro pabaiga
     public function authorize(): bool
     {
         return auth()->check() && (bool) auth()->user()->is_admin;
     }
 
-    // duomenu paruosimas pries validacija komentaro pradzia
-    // Cia kai kurie formos checkbox arba skaiciai sutvarkomi pries rules tikrinima.
-    // Taip validacija gauna tvarkingesnes reiksmes.
-    // duomenu paruosimas pries validacija komentaro pabaiga
     protected function prepareForValidation(): void
     {
         $this->merge([
@@ -42,10 +34,6 @@ class ProductUpsertRequest extends FormRequest
         ]);
     }
 
-    // admin prekes validacijos taisykles komentaro pradzia
-    // Cia aprasyta ka admin privalo uzpildyti kuriant arba redaguojant preke.
-    // Pvz pavadinimas privalomas, kaina turi buti skaicius, nuotraukos turi buti paveiksleliai.
-    // admin prekes validacijos taisykles komentaro pabaiga
     public function rules(): array
     {
         return [
@@ -68,10 +56,6 @@ class ProductUpsertRequest extends FormRequest
         ];
     }
 
-    // lietuviski validacijos pranesimai komentaro pradzia
-    // Cia surasyti pranesimai, kuriuos admin mato jei forma uzpildyta blogai.
-    // Taip vartotojas nemato Laravel anglisku klaidu.
-    // lietuviski validacijos pranesimai komentaro pabaiga
     public function messages(): array
     {
         return [

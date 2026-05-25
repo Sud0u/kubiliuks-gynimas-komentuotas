@@ -10,10 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class AdminOrderController extends Controller
 {
-    // admin uzsakymu sarasas komentaro pradzia
-    // Cia admin gauna visus uzsakymus.
-    // Galima ieskoti pagal kliento duomenis ir filtruoti pagal statusus.
-    // admin uzsakymu sarasas komentaro pabaiga
     public function index(Request $request)
     {
         $status = trim((string) $request->query('status', 'all'));
@@ -100,10 +96,6 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    // vieno uzsakymo perziura adminui komentaro pradzia
-    // Cia admin mato viena uzsakyma su prekemis ir mokejimu.
-    // Tai reikalinga uzsakymo detaliam tikrinimui.
-    // vieno uzsakymo perziura adminui komentaro pabaiga
     public function show($id)
     {
         $order = Order::query()
@@ -158,12 +150,6 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    // admin užsakymo statuso keitimas komentaro pradzia
-    // Čia administratorius gali pakeisti statusą, bet tik pagal leidžiamą logiką.
-    // uzsakymo statuso keitimas komentaro pradzia
-    // Cia admin pakeicia uzsakymo arba mokejimo busena.
-    // Pvz pending gali tapti confirmed arba cancelled.
-    // uzsakymo statuso keitimas komentaro pabaiga
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -190,21 +176,15 @@ class AdminOrderController extends Controller
             ]);
         }
 
-        // Šita vieta neleidžia blogų perėjimų, pvz. iš pending tiesiai į shipped.
         if (! $this->isAllowedTransition($oldStatus, $newStatus)) {
             return response()->json([
                 'message' => $this->transitionErrorMessage($oldStatus, $newStatus),
             ], 422);
         }
 
-        // statuso keitimas transakcijoje komentaro pradzia
-        // Cia statusas keiciamas transakcijoje.
-        // Jei uzsakymas atsaukiamas, tuo paciu gali buti grazinami prekiu likuciai.
-        // statuso keitimas transakcijoje komentaro pabaiga
         DB::transaction(function () use ($order, $oldStatus, $newStatus) {
             $order->load(['items', 'payment']);
 
-            // Kai admin patvirtina apmokėjimą rankiniu būdu, atnaujinamas ir payment įrašas.
             if ($oldStatus === 'pending' && $newStatus === 'paid') {
                 if ($order->payment) {
                     $order->payment->status = 'paid';
@@ -222,7 +202,6 @@ class AdminOrderController extends Controller
             }
 
             if ($oldStatus === 'pending' && $newStatus === 'cancelled') {
-                // Atšaukus užsakymą, rezervuotos prekės grąžinamos į sandėlį.
                 $this->restoreStockForOrder($order);
 
                 if ($order->payment && $order->payment->status === 'unpaid') {
@@ -260,10 +239,6 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    // uzsakymo trynimas adminui komentaro pradzia
-    // Cia admin gali istrinti uzsakyma.
-    // Jei reikia, trynimo metu sutvarkomi ir susije irasai.
-    // uzsakymo trynimas adminui komentaro pabaiga
     public function destroy($id)
     {
         $order = Order::query()->with('items')->findOrFail($id);
@@ -297,15 +272,9 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    // admin užsakymo statuso keitimas komentaro pabaiga
 
-    // ar galima pereiti i nauja statusa komentaro pradzia
-    // Cia tikrinama statusu logika.
-    // Ne visi statusu pakeitimai leidziami, kad uzsakymo eiga butu tvarkinga.
-    // ar galima pereiti i nauja statusa komentaro pabaiga
     private function isAllowedTransition(string $oldStatus, string $newStatus): bool
     {
-        // Čia aiškiai aprašyta statusų schema.
         $allowed = [
             'pending' => ['paid', 'cancelled'],
             'paid' => ['shipped', 'cancelled'],
@@ -337,11 +306,6 @@ class AdminOrderController extends Controller
         return 'Toks statuso perėjimas neleidžiamas.';
     }
 
-    // sandėlio likučio grąžinimas komentaro pradzia
-    // prekiu likuciu grazinimas komentaro pradzia
-    // Cia grazinami prekiu likuciai, jei uzsakymas atsaukiamas.
-    // Tai svarbu, nes prekes buvo nuskaiciuotos kuriant uzsakyma.
-    // prekiu likuciu grazinimas komentaro pabaiga
     private function restoreStockForOrder(Order $order): void
     {
         $ids = $order->items
@@ -363,10 +327,8 @@ class AdminOrderController extends Controller
                 continue;
             }
 
-            // Prie produkto grąžinamas toks kiekis, koks buvo užsakyme.
             $product->stock = (int) $product->stock + (int) $item->quantity;
             $product->save();
         }
     }
-    // sandėlio likučio grąžinimas komentaro pabaiga
 }

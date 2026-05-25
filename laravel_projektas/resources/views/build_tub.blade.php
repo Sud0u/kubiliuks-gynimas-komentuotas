@@ -4,13 +4,7 @@
 
 @section('content')
 @php
-    // individualaus kubilo pasirinkimai komentaro pradzia
-    // Čia aprašyti variantai, kuriuos klientas mato puslapyje: vidus, mediena, dydis ir kainos priedai.
-    // vidaus spalvos komentaro pradzia
-    // Cia yra vidaus spalvu masyvas.
-    // Kiekvienas variantas turi key, label, price, hex ir text_color.
-    // key yra techninis pavadinimas kodui, label rodomas vartotojui, price prideda kaina.
-    // vidaus spalvos komentaro pabaiga
+    // cia aprasyti pasirinkimai, kuriuos vartotojas mato builderyje.
     $insideOptions = [
         [
             'key' => 'balta',
@@ -42,11 +36,6 @@
         ],
     ];
 
-    // medienos spalvos komentaro pradzia
-    // Cia yra medienos pasirinkimai.
-    // Sitie key veliau naudojami nuotraukos pavadinimui sudaryti, pvz chestnut-ruda.
-    // Price reiskia papildoma kaina uz pasirinkta mediena.
-    // medienos spalvos komentaro pabaiga
     $woodOptions = [
         [
             'key' => 'base-ruda',
@@ -78,11 +67,6 @@
         ],
     ];
 
-    // kubilo dydziai komentaro pradzia
-    // Cia aprasyti kubilo dydziai.
-    // Kiekvienas dydis turi savo technini key, vartotojui rodoma label ir kainos prieda.
-    // Didesnis kubilas kainuoja daugiau, todel price gali buti 300 arba 650.
-    // kubilo dydziai komentaro pabaiga
     $sizeOptions = [
         [
             'key' => '180',
@@ -101,16 +85,11 @@
         ],
     ];
 
-    // bazine kaina ir nuotrauku keliai komentaro pradzia
-    // Cia nustatoma bazine kubilo kaina.
-    // Nuo jos veliau skaiciuojama galutine suma: bazine kaina + dydis + vidus + mediena.
-    // imagesBase nurodo folderi, kuriame laikomos kubilo kombinaciju nuotraukos.
-    // bazine kaina ir nuotrauku keliai komentaro pabaiga
+    // bazine kaina, nuo kurios skaiciuojami pasirinkimu priedai.
     $basePrice = 2200;
     $imageVersion = 'v3';
     $baseImage = asset('images/kubilai/balta-base-ruda.png') . '?v=' . $imageVersion;
     $imagesBase = asset('images/kubilai');
-    // individualaus kubilo pasirinkimai komentaro pabaiga
 @endphp
 
 <section class="bg-stone-50">
@@ -272,7 +251,7 @@
                         <div class="p-5 md:p-8">
                             <div class="builder-preview-shell">
                                 <div class="aspect-[4/3] md:aspect-[16/12] flex items-center justify-center p-4 md:p-8">
-                                    {{-- PASTABA: šitas img keičiasi pagal pasirinktą vidaus ir medienos spalvą. --}}
+                                    {{-- sita nuotrauka keiciasi pagal pasirinkta vidaus ir medienos spalva. --}}
                                     <img
                                         id="tub-preview-image"
                                         src="{{ $baseImage }}"
@@ -317,10 +296,6 @@
                                 <h3 class="text-2xl font-extrabold tracking-tight text-stone-900">Dydis</h3>
 
                                 <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    {-- dydzio korteles komentaro pradzia --}
-                                    {{-- Cia per foreach isvedami visi kubilo dydziai. --}}
-                                    {{-- Kiekvienas dydis turi data-price, todel JavaScript veliau gali paimti kainos prieda. --}}
-                                    {-- dydzio korteles komentaro pabaiga --}
                                     @foreach($sizeOptions as $index => $size)
                                         <label class="builder-size-card size-card p-4 {{ $index === 0 ? 'is-active' : '' }}">
                                             <input
@@ -347,10 +322,6 @@
                                 <h3 class="text-2xl font-extrabold tracking-tight text-stone-900">Vidaus spalva</h3>
 
                                 <div class="mt-5 grid builder-option-grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    {-- vidaus spalvu korteles komentaro pradzia --}
-                                    {{-- Cia isvedamos vidaus spalvos. --}}
-                                    {{-- data-label, data-price ir data-hex veliau naudojami santraukai, kainai ir spalvos zenklui. --}}
-                                    {-- vidaus spalvu korteles komentaro pabaiga --}
                                     @foreach($insideOptions as $index => $inside)
                                         <label class="builder-swatch-card inside-card p-4 {{ $index === 0 ? 'is-active' : '' }}">
                                             <input
@@ -386,10 +357,6 @@
                                 <h3 class="text-2xl font-extrabold tracking-tight text-stone-900">Medienos spalva</h3>
 
                                 <div class="mt-5 grid builder-option-grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    {-- medienos korteles komentaro pradzia --}
-                                    {{-- Cia isvedamos medienos spalvos. --}}
-                                    {{-- Pasirinkta mediena kartu su vidaus spalva sudaro nuotraukos failo pavadinima. --}}
-                                    {-- medienos korteles komentaro pabaiga --}
                                     @foreach($woodOptions as $index => $wood)
                                         <label class="builder-swatch-card wood-card p-4 {{ $index === 0 ? 'is-active' : '' }}">
                                             <input
@@ -488,39 +455,23 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // builderio JavaScript logika komentaro pradzia
-    // Čia paimama bazinė kaina, nuotraukų kelias ir visi pasirinkimo mygtukai.
     const basePrice = {{ $basePrice }};
     const imagesBase = @json($imagesBase);
     const imageVersion = @json($imageVersion);
 
-    // Šis kintamasis atsakingas už visas dydžio korteles, kurios matomos puslapyje.
-    // querySelectorAll paima VISUS HTML elementus pagal CSS klasę .size-card.
-    // Paprastai tariant: čia susirenkame visus dydžio pasirinkimo mygtukus.
+    // cia pasiimamos pasirinkimu korteles, kad paspaudus atsinaujintu vaizdas ir kaina.
     const sizeCards = document.querySelectorAll('.size-card');
 
-    // Čia paimami dydžio radio input'ai. Juose saugoma reali pasirinkimo reikšmė: 180, 200 arba 220 cm.
-    // Iš data-price atributo vėliau paimama papildoma kaina.
     const sizeOptions = document.querySelectorAll('.size-option');
 
-    // Šis kintamasis atsakingas už visas vidaus spalvos korteles.
-    // Pvz. balta, mėlyna, raudona arba žalia.
     const insideCards = document.querySelectorAll('.inside-card');
 
-    // Čia paimami vidaus spalvos radio input'ai.
-    // Juose yra data-label, data-price, data-hex ir kiti duomenys, kurie naudojami kainai ir spalvų ženkliukams.
     const insideOptions = document.querySelectorAll('.inside-option');
 
-    // Šis kintamasis atsakingas už medienos spalvos korteles.
-    // Čia sukuriamas kintamasis woodCards. Jis paima visas medienos spalvos korteles iš puslapio pagal klasę .wood-card.
-    // Tada toliau kode prie kiekvienos kortelės galima pridėti veiksmą, kad paspaudus ant medienos varianto atsinaujintų pasirinkimas, kaina ir kubilo vaizdas.
     const woodCards = document.querySelectorAll('.wood-card');
 
-    // Čia paimami medienos radio input'ai. Juose saugoma pasirinkta medienos reikšmė ir jos papildoma kaina.
     const woodOptions = document.querySelectorAll('.wood-option');
 
-    // Šis kintamasis atsakingas už pagrindinę kubilo nuotrauką kairėje pusėje.
-    // Kai vartotojas pasirenka kitą vidų arba medieną, toliau kode pakeičiamas šio <img> elemento src.
     const previewImage = document.getElementById('tub-preview-image');
     const previewInsideBadge = document.getElementById('preview-inside-badge');
     const previewWoodBadge = document.getElementById('preview-wood-badge');
@@ -534,49 +485,27 @@ document.addEventListener('DOMContentLoaded', function () {
     const addButton = document.getElementById('add-custom-tub-btn');
     const builderMsg = document.getElementById('builder-msg');
 
-    // Ši funkcija gražiai suformatuoja kainą lietuvišku formatu, pvz. 2 200 €.
-    // kainos formatavimas komentaro pradzia
-    // Cia kaina paverciama i grazesni lietuviska formata.
-    // Pvz vietoj 2200 vartotojas mato 2 200 €.
-    // kainos formatavimas komentaro pabaiga
     function formatPrice(price) {
         return new Intl.NumberFormat('lt-LT').format(price) + ' €';
     }
 
-    // Ši funkcija paima CSRF tokeną, kad API užklausos būtų saugesnės.
-    // CSRF tokenas komentaro pradzia
-    // Cia paimamas CSRF tokenas is meta tago.
-    // Jis reikalingas, kad Laravel zinotu jog uzklausa ateina is musu puslapio.
-    // CSRF tokenas komentaro pabaiga
     function csrf() {
         const meta = document.querySelector('meta[name="csrf-token"]');
         return meta ? meta.getAttribute('content') : '';
     }
 
-    // Pasiimam dabar pažymėtą dydžio variantą
-    // paimamas pasirinktas dydis komentaro pradzia
-    // Cia surandamas tas dydzio radio inputas, kuris dabar yra pazymetas.
-    // Jei vartotojas pasirenka 200 cm, sita funkcija grazina 200 cm varianta.
-    // paimamas pasirinktas dydis komentaro pabaiga
     function getSelectedSize() {
         return document.querySelector('.size-option:checked');
     }
 
-    // Pasiimam dabar pažymėtą vidaus spalvos variantą.
     function getSelectedInside() {
         return document.querySelector('.inside-option:checked');
     }
 
-    // Pasiimam dabar pažymėtą medienos spalvos variantą.
     function getSelectedWood() {
         return document.querySelector('.wood-option:checked');
     }
 
-    // Ši funkcija nuima aktyvų stilių nuo visų kortelių ir uždeda jį tik pasirinktai kortelei.
-    // aktyvios korteles stilius komentaro pradzia
-    // Cia nuimamas aktyvus stilius nuo visu korteliu ir uzdedamas tik pasirinktai.
-    // Taip vartotojas vizualiai mato, kuris dydis, spalva ar mediena dabar pasirinkta.
-    // aktyvios korteles stilius komentaro pabaiga
     function setActiveCard(cards, selectedInput) {
         cards.forEach(card => card.classList.remove('is-active'));
 
@@ -590,18 +519,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // kubilo vaizdo parinkimas pagal pasirinkimus komentaro pradzia
-    // Šita funkcija suformuoja nuotraukos pavadinimą pagal pasirinktą vidų ir medieną.
-    // Pvz.: vartotojas pasirenka mėlyną vidų ir kaštoninę medieną.
-    // Tada failo pavadinimas gaunasi: melyna-chestnut-ruda.png.
-    // Svarbu: galutinėje versijoje naudojamos paruoštos kombinacijų nuotraukos.
-    // Vartotojui tai atrodo kaip layerių keitimas, nes keičiasi atskiros kubilo dalys,
-    // bet techniškai pagal pasirinkimų kombinaciją parenkama konkreti paruošta nuotrauka.
+    // pagal pasirinkta vidu ir mediena sudaromas nuotraukos kelias.
     function currentImagePath() {
-        // dabartiniai pasirinkimai komentaro pradzia
-        // Cia paimama, koki vidaus varianta ir kokia mediena vartotojas pasirinko.
-        // Pvz selectedInside gali buti melyna, o selectedWood gali buti chestnut-ruda.
-        // dabartiniai pasirinkimai komentaro pabaiga
         const selectedInside = getSelectedInside();
         const selectedWood = getSelectedWood();
 
@@ -609,46 +528,22 @@ document.addEventListener('DOMContentLoaded', function () {
             return 'images/kubilai/balta-base-ruda.png';
         }
 
-        // Čia sujungiamos dvi reikšmės: pasirinktas vidus + pasirinkta mediena.
-        // Taip gaunamas konkretus paveikslėlio failas, kuris atitinka vartotojo pasirinkimą.
         return `images/kubilai/${selectedInside.value}-${selectedWood.value}.png`;
     }
-    // kubilo vaizdo parinkimas pagal pasirinkimus komentaro pabaiga
 
-    // kainos skaičiavimas komentaro pradzia
-    // Čia skaičiuojama galutinė kaina: bazinė kaina + dydis + vidus + mediena.
-    // Pvz. bazė 2200 €, didesnis dydis +300 €, spalva +90 €, mediena +120 €.
-    // galutines kainos skaiciavimas komentaro pradzia
-    // Sita funkcija yra viena svarbiausiu builderyje.
-    // Ji paima pasirinkto dydzio, vidaus spalvos ir medienos kainos priedus.
-    // Tada viska prideda prie bazines kubilo kainos.
-    // galutines kainos skaiciavimas komentaro pabaiga
+    // galutine kaina = bazine kaina + pasirinkimu priedai.
     function currentTotal() {
         const selectedSize = getSelectedSize();
         const selectedInside = getSelectedInside();
         const selectedWood = getSelectedWood();
 
-        // dataset.price reiškia, kad kaina paimama iš HTML data-price atributo.
-        // Number() paverčia tekstą į skaičių, kad būtų galima normaliai sudėti kainas.
-        // kainu priedai is data-price komentaro pradzia
-        // Cia is HTML data-price atributu paimami kainos priedai.
-        // Jei kazkas nepasirinkta, naudojamas 0, kad skaiciavimas nesugriutu.
-        // Number() reikalingas nes data-price ateina kaip tekstas, o mums reikia skaiciaus.
-        // kainu priedai is data-price komentaro pabaiga
         const sizePrice = selectedSize ? Number(selectedSize.dataset.price) : 0;
         const insidePrice = selectedInside ? Number(selectedInside.dataset.price) : 0;
         const woodPrice = selectedWood ? Number(selectedWood.dataset.price) : 0;
 
-        // Čia grąžinama galutinė kubilo kaina.
-        // galutine suma komentaro pradzia
-        // Cia sudedama bazine kaina ir visi vartotojo pasirinkimu priedai.
-        // Butent sita suma rodoma vartotojui kaip galutine kubilo kaina.
-        // galutine suma komentaro pabaiga
         return basePrice + sizePrice + insidePrice + woodPrice;
     }
-    // kainos skaičiavimas komentaro pabaiga
 
-    // Ši funkcija parodo žinutę vartotojui, pvz. ar kubilas sėkmingai įdėtas į krepšelį.
     function showBuilderMsg(text, ok = true) {
         if (!builderMsg) return;
 
@@ -666,17 +561,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         builderMsg.textContent = text;
     }
-  
-    // nuotraukos atnaujinimas ekrane komentaro pradzia
-    // Kai žmogus pakeičia vidaus arba medienos spalvą, ši funkcija atnaujina kubilo nuotrauką.
-    // Čia yra viena svarbiausių builderio vietų, nes vartotojas iš karto mato savo pasirinkimą.
-    //----------- Šita funkcija parenka, kokią kubilo nuotrauką rodyti.
-    // nuotraukos pakeitimas komentaro pradzia
-    // Cia funkcija atsakinga uz tai, kad pasirinkus spalvas pasikeistu kubilo vaizdas.
-    // Sistema nedaro sudetingo layeriu renderinimo, o parenka paruosta nuotrauka pagal pavadinima.
-    // nuotraukos pakeitimas komentaro pabaiga
-    function updatePreview() { 
-        // Čia pasiimami dabartiniai vartotojo pasirinkimai. selectedInside reiškia pasirinktą vidaus spalvą, o selectedWood reiškia pasirinktą medienos spalvą.
+
+    // cia realiai pakeiciama kubilo nuotrauka ekrane.
+    function updatePreview() {
         const selectedInside = getSelectedInside();
         const selectedWood = getSelectedWood();
 
@@ -684,38 +571,16 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Čia sujungiamos pasirinktos reikšmės į nuotraukos failo pavadinimą.
-        // Pvz. selectedInside.value = melyna, selectedWood.value = chestnut-ruda.
-        // Tada gauname: melyna-chestnut-ruda.png.
-        // nuotraukos failo pavadinimas komentaro pradzia
-        // Cia sujungiamos dvi reiksmes: vidaus spalva ir medienos spalva.
-        // Pvz gaunasi melyna-chestnut-ruda.png.
-        // Taip sistema zino kuria is 16 nuotrauku reikia parodyti.
-        // ?v=imageVersion padeda neatidaryti senos nuotraukos is narsykles cache.
-        // nuotraukos failo pavadinimas komentaro pabaiga
         const imageName = `${selectedInside.value}-${selectedWood.value}.png?v=${imageVersion}`;
 
-        // Čia gaunamas pilnas nuotraukos kelias, kurį vėliau įdedame į <img src>.
-        // pilnas nuotraukos kelias komentaro pradzia
-        // Cia prie nuotraukos pavadinimo pridedamas folderio kelias.
-        // Gaunamas pilnas src kelias, kuri veliau gauna pagrindine nuotrauka.
-        // pilnas nuotraukos kelias komentaro pabaiga
         const nextSrc = `${imagesBase}/${imageName}`;
 
         previewImage.classList.add('is-loading');
 
-        // Sukuriamas laikinas Image objektas, kad nauja nuotrauka pirmiau užsikrautų,
-        // ir tik tada būtų pakeista ekrane. Taip sumažėja mirgėjimas.
         const preloader = new Image();
         preloader.onload = function () {
-            // Čia realiai pakeičiama kubilo nuotrauka puslapyje.
-            // realus vaizdo pakeitimas komentaro pradzia
-            // Sita eilute realiai pakeicia pagrindines nuotraukos src.
-            // Del to ekrane pasikeicia kubilo nuotrauka pagal vartotojo pasirinkimus.
-            // realus vaizdo pakeitimas komentaro pabaiga
             previewImage.src = nextSrc;
 
-            // alt tekstas padeda prieinamumui ir aprašo, koks variantas rodomas.
             previewImage.alt = `${selectedInside.dataset.label} vidus ir ${selectedWood.dataset.label} mediena`;
 
             requestAnimationFrame(() => {
@@ -727,17 +592,9 @@ document.addEventListener('DOMContentLoaded', function () {
             previewImage.classList.remove('is-loading');
         };
 
-        // Čia pradedamas naujos nuotraukos krovimas.
         preloader.src = nextSrc;
     }
-    // nuotraukos atnaujinimas ekrane komentaro pabaiga
 
-    // santraukos atnaujinimas komentaro pradzia
-    // Ši funkcija atnaujina kainą, pasirinktą dydį, vidų, medieną ir viršuje esančius ženkliukus.
-    // santraukos atnaujinimas komentaro pradzia
-    // Cia atnaujinama viskas ka vartotojas mato sonineje santraukoje.
-    // Atnaujinama kaina, dydis, vidus, mediena ir mazi badge uzrasai virs nuotraukos.
-    // santraukos atnaujinimas komentaro pabaiga
     function updateSummary() {
         const selectedSize = getSelectedSize();
         const selectedInside = getSelectedInside();
@@ -770,28 +627,19 @@ document.addEventListener('DOMContentLoaded', function () {
             previewWoodBadge.style.color = '#ffffff';
         }
     }
-    // santraukos atnaujinimas komentaro pabaiga
 
-    // Ši funkcija atnaujina, kurios kortelės vizualiai pažymėtos kaip pasirinktos.
-    // Paprastai tariant: nuima žalią pažymėjimą nuo senų kortelių ir uždeda ant naujai pasirinktos.
     function refreshStates() {
         setActiveCard(sizeCards, getSelectedSize());
         setActiveCard(insideCards, getSelectedInside());
         setActiveCard(woodCards, getSelectedWood());
     }
 
-    // Bendra funkcija, kuri po kiekvieno pasirinkimo atnaujina visą builderį.
-    // Ji sujungia tris dalis: aktyvias korteles, nuotrauką ir kainos/santraukos tekstą.
     function updateBuilder() {
         refreshStates();
         updatePreview();
         updateSummary();
     }
 
-    // bendra API funkcija komentaro pradzia
-    // Cia yra pagalbine funkcija, kuri siuncia uzklausas i Laravel API.
-    // Ji naudojama kai reikia ideti custom kubila i krepseli be pilno puslapio perkrovimo.
-    // bendra API funkcija komentaro pabaiga
     async function api(url, method = 'GET', body = null) {
         const headers = {
             'Accept': 'application/json',
@@ -810,11 +658,6 @@ document.addEventListener('DOMContentLoaded', function () {
             options.body = JSON.stringify(body);
         }
 
-        // fetch išsiunčia užklausą į serverį ir laukia atsakymo.
-        // fetch uzklausa komentaro pradzia
-        // Cia narsykle issiuncia uzklausa i serveri ir laukia atsakymo.
-        // Jei serveris grazina klaida, zemiau kodas parodo klaidos zinute vartotojui.
-        // fetch uzklausa komentaro pabaiga
         const response = await fetch(url, options);
 
         let data = null;
@@ -830,13 +673,12 @@ document.addEventListener('DOMContentLoaded', function () {
         return data;
     }
 
-   
-   //// ////// cia funkcijos pradzia, ji atsakinga uz custom kubilo idejima i krepseli.
+
+    // si funkcija issiuncia pasirinkta kubila i backend, kad jis atsidurtu krepselyje.
     async function addIndividualTubToCart() {
         const selectedSize = getSelectedSize();
         const selectedInside = getSelectedInside();
         const selectedWood = getSelectedWood();
-// sita vieta patikrina ar vartotojas pasiriko visas kubilo dalis jeigu kazko truksta yra metama klaida. 
         if (!selectedSize || !selectedInside || !selectedWood) {
             showBuilderMsg('Pasirinkite visas kubilo parinktis.', false);
             return;
@@ -847,16 +689,12 @@ document.addEventListener('DOMContentLoaded', function () {
         addButton.textContent = 'Dedama...';
 
         try {
-           // pasirinktas individualus kubilas siunčiamas į backend. 
-           // Šita eilutė siunčia POST užklausą į /api/v1/cart/custom-tub
-            await api('/api/v1/cart/custom-tub', 'POST', { // ne failas o  API adresas į kurį JavaScript siuncia duomenis , 
-          //  JavaScript siunčia POST užklausą į API adresą
+            // cia pasirinkimai keliauja i /api/v1/cart/custom-tub.
+            await api('/api/v1/cart/custom-tub', 'POST', {
                 size_key: selectedSize.value,
                 inside_key: selectedInside.value,
                 wood_key: selectedWood.value,
                 qty: 1,
-                // „cia i serveri perduodami konkretus raktai: dydzio raktas, vidaus spalvos raktas
-                //medienos raktas ir kiekis backend veliau pagal situos raktus patikrina ar pasirinkimai leistini ir perskaiciuoja kaina
             });
 
             if (window.refreshCartBadge) {
@@ -869,7 +707,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             showBuilderMsg('Individualus kubilas įdėtas į krepšelį.', true);
 
-            // Po sėkmingo įdėjimo trumpam pakeičiam mygtuko tekstą, kad žmogus matytų rezultatą
             addButton.textContent = 'Įdėta į krepšelį';
         } catch (error) {
             showBuilderMsg(error.message || 'Nepavyko įdėti kubilo į krepšelį.', false);
@@ -880,33 +717,25 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-   
-    // Cia prie kiekvieno pasirinkimo pridedamas change veiksmas.
-    // Kai vartotojas pakeicia dydi, vidaus spalva ar mediena, iskart atnaujinama santrauka ir nuotrauka.
-    // paspaudimu klausytojai komentaro pabaiga
+
+    // pakeitus pasirinkima iskart atnaujinama kaina, tekstai ir nuotrauka.
     sizeOptions.forEach(option => {
         option.addEventListener('change', updateBuilder);
     });
 
-    // Tas pats principas su vidaus spalva: pakeitus spalvą, atsinaujina vaizdas ir kaina.
     insideOptions.forEach(option => {
         option.addEventListener('change', updateBuilder);
     });
 
-    // Tas pats principas su medienos spalva.
-    // Kai vartotojas pasirenka kitą medieną, sistema iš karto pakeičia aktyvią kortelę, kainą ir nuotrauką.
     woodOptions.forEach(option => {
         option.addEventListener('change', updateBuilder);
     });
-    // vartotojo paspaudimų / pasirinkimų stebėjimas komentaro pabaiga
 
     if (addButton) {
-        // Paspaudus mygtuką paleidžiama funkcija, kuri individualų kubilą įdeda į krepšelį.
         addButton.addEventListener('click', addIndividualTubToCart);
     }
 
     updateBuilder();
-    // builderio JavaScript logika komentaro pabaiga
 });
 </script>
 @endsection

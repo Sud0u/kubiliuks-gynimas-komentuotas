@@ -12,10 +12,6 @@ use Illuminate\Support\Str;
 
 class ProductAdminController extends Controller
 {
-    // admin produktu sarasas komentaro pradzia
-    // Cia admin mato produktu sarasa.
-    // Galima filtruoti pagal paieska, kategorija ir aktyvumo busena.
-    // admin produktu sarasas komentaro pabaiga
     public function index(Request $request)
     {
         $status = $request->query('status', 'active');
@@ -54,10 +50,6 @@ class ProductAdminController extends Controller
         ));
     }
 
-    // produkto kurimo forma komentaro pradzia
-    // Cia atidaroma forma naujai prekei sukurti.
-    // I forma perduodamos kategorijos, kad admin galetu pasirinkti prekes kategorija.
-    // produkto kurimo forma komentaro pabaiga
     public function create()
     {
         $categories = Category::query()->orderBy('name')->get();
@@ -65,36 +57,23 @@ class ProductAdminController extends Controller
         return view('admin.products.create', compact('categories'));
     }
 
-    // admin prekės sukūrimas komentaro pradzia
-    // Čia administratorius sukuria prekę, įkelia nuotraukas ir sistema sugeneruoja slug.
-    // naujos prekes issaugojimas komentaro pradzia
-    // Cia issaugoma nauja preke.
-    // Duomenys jau buna patikrinti ProductUpsertRequest faile.
-    // naujos prekes issaugojimas komentaro pabaiga
     public function store(ProductUpsertRequest $request)
     {
-        // validuoti admin duomenys komentaro pradzia
-        // Cia paimami tik validuoti formos duomenys.
-        // Tai reiskia, kad i DB nepatenka laukai, kuriu neleidziame issaugoti.
-        // validuoti admin duomenys komentaro pabaiga
         $data = $request->validated();
 
         unset($data['gallery_images'], $data['remove_gallery_images']);
 
         $data['name'] = trim((string) $data['name']);
-        // Slug generuojamas automatiškai iš pavadinimo, kad URL būtų tvarkingas.
         $data['slug'] = $this->generateUniqueSlug($data['name']);
         $data['stock'] = $data['stock'] ?? 0;
         $data['is_active'] = $request->boolean('is_active', true);
 
-        // Čia saugomos trys pagrindinės prekės nuotraukos.
         foreach ($this->mainImageFields() as $field) {
             if ($request->hasFile($field)) {
                 $data[$field] = $request->file($field)->store('products', 'public');
             }
         }
 
-        // Papildomos galerijos nuotraukos saugomos atskirai, kad nebūtų 3 nuotraukų ribojimo.
         $data['gallery_images'] = $this->storeGalleryImages($request);
 
         Product::create($data);
@@ -104,10 +83,6 @@ class ProductAdminController extends Controller
             ->with('success', 'Prekė sukurta.');
     }
 
-    // produkto redagavimo forma komentaro pradzia
-    // Cia atidaromas esamos prekes redagavimas.
-    // Laravel pagal route automatiskai paduoda Product modeli.
-    // produkto redagavimo forma komentaro pabaiga
     public function edit(Product $product)
     {
         $categories = Category::query()->orderBy('name')->get();
@@ -115,12 +90,7 @@ class ProductAdminController extends Controller
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
-    // admin prekės sukūrimas komentaro pabaiga
 
-    // prekes atnaujinimas komentaro pradzia
-    // Cia admin pakeicia prekes informacija.
-    // Vel naudojamas ProductUpsertRequest, todel ir kurimas ir redagavimas turi ta pacia validacija.
-    // prekes atnaujinimas komentaro pabaiga
     public function update(ProductUpsertRequest $request, Product $product)
     {
         $data = $request->validated();
@@ -139,7 +109,6 @@ class ProductAdminController extends Controller
             }
         }
 
-        // Redaguojant prekę senos galerijos nuotraukos išlaikomos, nebent admin jas pažymi pašalinimui.
         $galleryImages = $this->currentGalleryImages($product);
         $galleryImages = $this->removeGalleryImages($request, $galleryImages);
         $galleryImages = array_merge($galleryImages, $this->storeGalleryImages($request));
@@ -153,10 +122,6 @@ class ProductAdminController extends Controller
             ->with('success', 'Prekė atnaujinta.');
     }
 
-    // prekes trynimas komentaro pradzia
-    // Cia admin gali istrinti preke.
-    // Pries trinant pasalinamos ir su preke susijusios nuotraukos.
-    // prekes trynimas komentaro pabaiga
     public function destroy(Product $product)
     {
         if ($product->orderItems()->exists()) {
@@ -189,11 +154,6 @@ class ProductAdminController extends Controller
         return ['image', 'image_2', 'image_3'];
     }
 
-    // papildomų produkto nuotraukų saugojimas komentaro pradzia
-    // galerijos nuotrauku issaugojimas komentaro pradzia
-    // Cia issaugomos papildomos prekes nuotraukos.
-    // Jos naudojamos prekes puslapyje kaip galerija.
-    // galerijos nuotrauku issaugojimas komentaro pabaiga
     private function storeGalleryImages(ProductUpsertRequest $request): array
     {
         if (!$request->hasFile('gallery_images')) {
@@ -207,7 +167,6 @@ class ProductAdminController extends Controller
             ->all();
     }
 
-    // papildomų produkto nuotraukų saugojimas komentaro pabaiga
 
     private function currentGalleryImages(Product $product): array
     {
@@ -225,10 +184,6 @@ class ProductAdminController extends Controller
             ->all();
     }
 
-    // galerijos nuotrauku salinimas komentaro pradzia
-    // Cia admin gali pasalinti pasirinktas galerijos nuotraukas.
-    // Is masyvo paliekamos tik tos, kuriu nereikia istrinti.
-    // galerijos nuotrauku salinimas komentaro pabaiga
     private function removeGalleryImages(ProductUpsertRequest $request, array $galleryImages): array
     {
         $removeImages = collect($request->input('remove_gallery_images', []))
@@ -272,10 +227,6 @@ class ProductAdminController extends Controller
         }
     }
 
-    // unikalaus slug kurimas komentaro pradzia
-    // Slug yra nuorodos dalis, pvz medinis-kubilas.
-    // Cia uzdedama apsauga, kad keli produktai neturetu tokio pacio slug.
-    // unikalaus slug kurimas komentaro pabaiga
     private function generateUniqueSlug(?string $nameInput, ?int $ignoreProductId = null): string
     {
         $baseSlug = Str::slug(trim((string) $nameInput));

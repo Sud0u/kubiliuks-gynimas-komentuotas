@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <title>@yield('title', 'Kubiliuks')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    {{-- PASTABA: CSRF tokenas naudojamas saugioms POST/PATCH/DELETE užklausoms. --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    {{-- PASTABA: Paysera domeno patvirtinimo meta įrašas. --}}
     <meta name="verify-paysera" content="b7b565984b531fbd3c9d00e127f46f1a">
 
     <script src="https://cdn.tailwindcss.com"></script>

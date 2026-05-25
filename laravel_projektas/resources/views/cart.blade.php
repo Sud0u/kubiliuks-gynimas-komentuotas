@@ -263,6 +263,7 @@
         return '#';
     }
 
+    // cia viena krepselio preke paverciama HTML kortele.
     function renderItem(item) {
         const img = item.image
             ? `<img src="${imageUrl(item.image)}" alt="${item.name}" class="h-20 w-20 rounded-xl object-cover border border-black/10">`
@@ -327,6 +328,7 @@
         `;
     }
 
+    // cia is API paimamas session krepselis ir atvaizduojamas puslapyje.
     async function loadCart(showReloadToast = false) {
         hideAlert();
         elLoading.classList.remove('hidden');
@@ -334,6 +336,7 @@
         elItems.innerHTML = '';
 
         try {
+            // GET /api/v1/cart grazina prekes, kiekius ir bendra suma.
             const data = await api(apiBase);
             const root = getRoot(data);
             const items = normalizeItems(root);
@@ -349,6 +352,7 @@
             if (items.length < 1) {
                 elEmpty.classList.remove('hidden');
             } else {
+                // cia prekes realiai atsiranda krepselio puslapio HTML'e.
                 elItems.innerHTML = items.map(renderItem).join('');
             }
 
@@ -366,6 +370,7 @@
         }
     }
 
+    // kiekio +/- pakeitimai siunciami i backend ir po to krepselis perkraunamas.
     async function updateItem(itemId, qty) {
         if (isBusy) return;
         isBusy = true;

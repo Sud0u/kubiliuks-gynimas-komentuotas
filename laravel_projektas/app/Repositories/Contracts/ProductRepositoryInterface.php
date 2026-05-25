@@ -9,7 +9,6 @@ interface ProductRepositoryInterface
 {
     public function baseCatalogQuery(bool $onlyActive = true): Builder;
 
-    /** $filters: q, category_id, min_price, max_price, sort */
     public function applyFilters(Builder $q, array $filters): Builder;
 
     public function findActiveBySlug(string $slug): Product;

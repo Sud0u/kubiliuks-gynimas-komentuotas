@@ -66,7 +66,6 @@
 <div class="w-full lg:max-w-[1320px] lg:mx-auto px-2 sm:px-4 py-4 sm:py-6 lg:py-10">
     <div class="board rounded-[20px] sm:rounded-[30px] lg:rounded-[36px] p-2 sm:p-5 lg:p-8">
 
-        {{-- Mobile / tablet top bar --}}
         <div class="lg:hidden mb-4">
             <div class="flex items-center justify-between gap-3 rounded-[22px] border border-black/10 bg-white px-3 py-3">
                 <div class="flex items-center gap-3 min-w-0">
@@ -102,7 +101,6 @@
                 </div>
             </div>
 
-            {{-- Quick mobile nav --}}
             <div class="mt-3 grid grid-cols-3 gap-2">
                 <a href="{{ route('admin.dashboard') }}"
                    class="text-center rounded-2xl px-3 py-3 text-sm font-semibold border transition

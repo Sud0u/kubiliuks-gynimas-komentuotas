@@ -20,11 +20,9 @@ class OrderController extends Controller
         private readonly PayseraService $paysera
     ) {}
 
-    // checkout ir užsakymo sukūrimas komentaro pradzia
-    ///////////// Šitas metodas gauna checkout formą, patikrina duomenis ir sukuria užsakymą.
+    // cia priimama checkout uzklausa ir pradedamas uzsakymo kurimas.
     public function store(Request $request)
     {
-        // patikrinam useri
         $user = auth()->user();
 
         if (!$user) {
@@ -33,17 +31,14 @@ class OrderController extends Controller
             ], 401);
         }
 
-        //Validacijos pradzia  backend validacija būtina, nes frontend validaciją žmogus gali apeiti per naršyklę.
+        // backend dar karta patikrina visus checkout laukus.
         $validator = Validator::make($request->all(), [
             'website' => ['nullable', 'max:255'],
             'customer_name' => ['required', 'string', 'max:255'],
-            // Leidžiamas tik lietuviškas telefono formatas.
             'customer_phone' => ['required', 'string', 'regex:/^(\+3706\d{7}|86\d{7})$/'],
             'shipping_address' => ['required', 'string', 'min:5', 'max:255', 'regex:/^(?=.*[A-Za-zĄČĘĖĮŠŲŪŽąćęėįšųūž])(?=.*\d)[A-Za-zĄČĘĖĮŠŲŪŽąćęėįšųūž0-9\s\-.,\/]+$/u'],
             'shipping_city' => ['required', 'string', 'min:2', 'max:50', 'regex:/^[A-Za-zĄČĘĖĮŠŲŪŽąćęėįšųūž\s\-]+$/u'],
-            // Lietuvos pašto kodui paliktas 5 skaitmenų formatas.
             'shipping_postcode' => ['required', 'string', 'regex:/^\d{5}$/'],
-            // Projekte pristatymas apribotas Lietuvai, todėl šalies pakeisti neleidžiama.
             'shipping_country' => ['required', 'string', 'in:Lietuva'],
             'payment_method' => ['required', 'in:cash_on_delivery,paysera'],
         ], [
@@ -63,10 +58,6 @@ class OrderController extends Controller
             'payment_method.in' => 'Pasirinktas netinkamas apmokėjimo būdas.',
         ]);
 
-        // validacijos klaidos grazinimas komentaro pradzia
-        // Jei validacija nepraeina, cia grazinama pirma klaida ir visi error laukeliai.
-        // Frontend gali parodyti zinute vartotojui checkout puslapyje.
-        // validacijos klaidos grazinimas komentaro pabaiga
         if ($validator->fails()) {
             return response()->json([
                 'message' => $validator->errors()->first(),
@@ -76,20 +67,12 @@ class OrderController extends Controller
 
         $data = $validator->validated();
 
-        // Paslėptas website laukelis yra paprastas botų filtras. Žmogus jo nemato, botai dažnai užpildo.
-        // pasleptas botu laukelis komentaro pradzia
-        // Website laukelio zmogus nemato, bet botai ji kartais uzpildo.
-        // Jei jis uzpildytas, sistema uzsakymo nepriima.
-        // pasleptas botu laukelis komentaro pabaiga
         if (!empty($data['website'])) {
             return response()->json([
                 'message' => 'Nepavyko pateikti užsakymo.',
             ], 422);
         }
 
-        // Paysera konfiguracijos patikrinimas komentaro pradzia
-        // Čia patikrinama, ar Paysera sukonfigūruota. Jeigu vartotojas pasirinko Paysera, 
-        // bet nėra projekto ID arba slaptažodžio, sistema neleis pereiti į neveikiantį mokėjimą.
         if (($data['payment_method'] ?? '') === 'paysera' && !$this->paysera->isConfigured()) {
             return response()->json([
                 'message' => 'Mokėjimas banko pavedimu dar nesukonfigūruotas. Užpildykite Paysera duomenis .env faile.',
@@ -101,32 +84,26 @@ class OrderController extends Controller
         $data['shipping_postcode'] = preg_replace('/\D+/', '', (string) $data['shipping_postcode']);
         $data['shipping_address'] = trim((string) $data['shipping_address']);
         $data['shipping_city'] = trim((string) $data['shipping_city']);
-        // Net jei kas nors bandytų pakeisti šalį per HTML, serveryje vėl nustatoma Lietuva.
         $data['shipping_country'] = 'Lietuva';
 
-       // Čia jau patikrinti checkout duomenys perduodami į OrderService. 
-       //////////// Controlleris pats nekuria visos užsakymo logikos, jis tik priima, patikrina ir perduoda darbą servisui
+        // is session krepselio sukuriamas realus uzsakymas duomenu bazeje.
         $order = $this->orders->createFromCart(
             $data,
             $data['payment_method'] ?? null
         );
 
+        // po uzsakymo session krepselis isvalomas.
         $this->cart->clear();
 
         $redirectUrl = route('orders.show', $order->id);
         $message = 'Užsakymas gautas. Su jumis susisieksime dėl apmokėjimo ir pristatymo detalių.';
 
-        // Jei pasirinkta Paysera, klientas nukreipiamas į Paysera mokėjimo langą.
-        // nukreipimas i Paysera komentaro pradzia
-        //////// Jei pasirinktas Paysera mokejimas, cia sugeneruojama Paysera nuoroda.
-        // Frontend gaus redirect_url ir nukreips vartotoja i mokejimo langa.
-        // nukreipimas i Paysera komentaro pabaiga
+        // jei pasirinkta Paysera, sugeneruojama mokejimo nuoroda.
         if (($data['payment_method'] ?? '') === 'paysera') {
             $redirectUrl = $this->paysera->buildCheckoutUrl($order);
             $message = 'Užsakymas sukurtas, bet bus patvirtintas tik po sėkmingo Paysera apmokėjimo.';
         }
 
-        // Frontend gauna redirect_url ir pagal jį arba rodo užsakymą, arba nukreipia į Paysera.
         return response()->json([
             'message' => $message,
             'data' => [
@@ -140,12 +117,7 @@ class OrderController extends Controller
         ], 201);
     }
 
-    // checkout ir užsakymo sukūrimas komentaro pabaiga
 
-    // vartotojo uzsakymu sarasas komentaro pradzia
-    // Sitas metodas grazina prisijungusio vartotojo uzsakymus.
-    // Vartotojas mato tik savo uzsakymus, nes filtruojama pagal Auth::id().
-    // vartotojo uzsakymu sarasas komentaro pabaiga
     public function index(Request $request)
     {
         $userId = auth()->id();
@@ -162,10 +134,6 @@ class OrderController extends Controller
         return response()->json(['data' => $orders]);
     }
 
-    // vieno uzsakymo parodymas komentaro pradzia
-    // Cia parodomas konkretus vartotojo uzsakymas su prekemis ir payment informacija.
-    // Jei uzsakymas nepriklauso vartotojui, jis nerodomas.
-    // vieno uzsakymo parodymas komentaro pabaiga
     public function show(Request $request, $id)
     {
         $user = auth()->user();
@@ -220,10 +188,6 @@ class OrderController extends Controller
         ]);
     }
 
-    // vartotojo uzsakymo atsaukimas komentaro pradzia
-    // Cia vartotojas gali atsaukti savo uzsakyma, jei jis dar pending ir neapmoketas.
-    // Atsaukiant paprastu prekiu likuciai grazinami atgal i sandeli.
-    // vartotojo uzsakymo atsaukimas komentaro pabaiga
     public function cancel(Request $request, $id)
     {
         $user = auth()->user();
@@ -250,11 +214,6 @@ class OrderController extends Controller
             ], 422);
         }
 
-        // Atšaukimas daromas transakcijoje, kad kartu pasikeistų ir užsakymas, ir sandėlio likutis.
-        // atsaukimo transakcija komentaro pradzia
-        // Cia atsaukimas vykdomas transakcijoje.
-        // Tai reiskia, kad statuso keitimas ir likuciu grazinimas vyksta kartu.
-        // atsaukimo transakcija komentaro pabaiga
         DB::transaction(function () use ($order) {
             $productIds = $order->items
                 ->pluck('product_id')
